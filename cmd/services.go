@@ -4,6 +4,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var cluster string
+
 func servicesRun(cmd *cobra.Command, args []string) {
 }
 
