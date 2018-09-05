@@ -7,6 +7,7 @@ import (
 var cluster string
 
 func servicesRun(cmd *cobra.Command, args []string) {
+	cmd.Help()
 }
 
 var servicesCmd = &cobra.Command{
