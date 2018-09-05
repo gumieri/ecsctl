@@ -1,0 +1,33 @@
+language: go
+go:
+- 1.x
+script:
+- GOOS=linux GOARCH=amd64 go build -o release/ecsctl-Linux-x86_64
+- GOOS=linux GOARCH=386 go build -o release/ecsctl-Linux-i386
+- GOOS=linux GOARCH=arm GOARM=5 go build -o release/ecsctl-Linux-armv5l
+- GOOS=linux GOARCH=arm GOARM=6 go build -o release/ecsctl-Linux-armv6l
+- GOOS=linux GOARCH=arm GOARM=7 go build -o release/ecsctl-Linux-armv7l
+- GOOS=linux GOARCH=arm64 go build -o release/ecsctl-Linux-armv8l
+- GOOS=darwin GOARCH=amd64 go build -o release/ecsctl-Darwin-x86_64
+- GOOS=darwin GOARCH=386 go build -o release/ecsctl-Darwin-i386
+- GOOS=windows GOARCH=amd64 go build -o release/ecsctl-Windows-x86_64.exe --ldflags="-H windowsgui"
+- GOOS=windows GOARCH=386 go build -o release/ecsctl-Windows-i386.exe --ldflags="-H windowsgui"
+deploy:
+  provider: releases
+  api_key:
+    secure: xs579Q8gZ+AZsjmuUhtZnL7Kr/UGnEgM3pcZf6hobOt1Xwu4ZB9LayVokwktJo+CGix9fPwK499yLDO+fkvZHyriB88I0IZOahhchQIJBq732G10pxzmvhKAlTISbdRlmNTj+HTy3XMD2YnAfUEQeIiETEVacrv/3WjQ5MgzNIIremSs2ishUl58rbvvrgfZbONKhUfuD5De/1lKkyQUunbzS7V9osiJraJEmQAphPTYg3Es3MTgNTioStHgREF9vUatezB5Iqg/5r99ax2rtGI7v5+nOd/25zGgJF74T8gmbznvq4cuulw2cJ6ptFgjhrdh+CefebMqJTDUC0dQISrogqjubx2p/R2hBnns/69rykSie6uM/WBDONIQkMivQCOm+1PvRSEEMY3LLvD1cZXtaX4ZxIkpYh5eE5uFW8T4cbBrmMfyUVVHCYPkd1ZpqisbbXYl3ADUm1XLovO1q8riQ9DIMCU0Q+Tn7ASh4ViWPSai+3JhClWPkViaqe9c0arYaTECg8x6ixh8uET/m5KOSJQREO1Yr0XGKEQW4MVFByvTC4iiTChAW9MCg0Rqvm2owlt1AKEzcRukEKoYGQJ4sGsovNm3zm4HZWsWaBefJVAsjAfcqYR+dprKuPaMHZ7rnu7GR2WjiR4wT6GCr8f30HWdkYBfc9cOmyoZBSU=
+  skip_cleanup: true
+  file:
+    - release/ecsctl-Linux-x86_64
+    - release/ecsctl-Linux-i386
+    - release/ecsctl-Linux-armv5l
+    - release/ecsctl-Linux-armv6l
+    - release/ecsctl-Linux-armv7l
+    - release/ecsctl-Linux-armv8l
+    - release/ecsctl-Darwin-x86_64
+    - release/ecsctl-Darwin-i386
+    - release/ecsctl-Windows-x86_64.exe
+    - release/ecsctl-Windows-i386.exe
+  on:
+    repo: gumieri/ecsctl
+    tags: true
