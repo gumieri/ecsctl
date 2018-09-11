@@ -11,7 +11,7 @@ func servicesRun(cmd *cobra.Command, args []string) {
 }
 
 var servicesCmd = &cobra.Command{
-	Use:   "services",
+	Use:   "services [command]",
 	Short: "commands to manage services",
 	Run:   servicesRun,
 }
