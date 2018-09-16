@@ -24,7 +24,10 @@ var allocationStrategy string
 var instanceTypes string
 var securityGroups string
 var subnets string
+var kernelID string
+var monitoring bool
 var key string
+var ebs bool
 
 var userData = `
 #!/bin/bash
@@ -51,20 +54,20 @@ EOF
 cat <<EOF > /usr/local/bin/spot-instance-termination-notice-handler.sh
 #!/bin/bash
 while sleep 5; do
-  if [ -z \$(curl -Isf http://169.254.169.254/latest/meta-data/spot/termination-time)]; then
-    /bin/false
-  else
-    logger "[spot-instance-termination-notice-handler.sh]: spot instance termination notice detected"
-    STATUS=DRAINING
-    ECS_CLUSTER=\$(curl -s http://localhost:51678/v1/metadata | jq .Cluster | tr -d \")
-    CONTAINER_INSTANCE=\$(curl -s http://localhost:51678/v1/metadata | jq .ContainerInstanceArn | tr -d \")
-    logger "[spot-instance-termination-notice-handler.sh]: putting instance in state \$STATUS"
+	if [ -z \$(curl -Isf http://169.254.169.254/latest/meta-data/spot/termination-time)]; then
+		/bin/false
+	else
+		logger "[spot-instance-termination-notice-handler.sh]: spot instance termination notice detected"
+		STATUS=DRAINING
+		ECS_CLUSTER=\$(curl -s http://localhost:51678/v1/metadata | jq .Cluster | tr -d \")
+		CONTAINER_INSTANCE=\$(curl -s http://localhost:51678/v1/metadata | jq .ContainerInstanceArn | tr -d \")
+		logger "[spot-instance-termination-notice-handler.sh]: putting instance in state \$STATUS"
 
-    /usr/local/bin/aws  ecs update-container-instances-state --cluster \$ECS_CLUSTER --container-instances \$CONTAINER_INSTANCE --status \$STATUS
+		/usr/local/bin/aws  ecs update-container-instances-state --cluster \$ECS_CLUSTER --container-instances \$CONTAINER_INSTANCE --status \$STATUS
 
-    logger "[spot-instance-termination-notice-handler.sh]: putting myself to sleep..."
-    sleep 120 # exit loop as instance expires in 120 secs after terminating notification
-  fi
+		logger "[spot-instance-termination-notice-handler.sh]: putting myself to sleep..."
+		sleep 120 # exit loop as instance expires in 120 secs after terminating notification
+	fi
 done
 EOF
 chmod +x /usr/local/bin/spot-instance-termination-notice-handler.sh
@@ -183,17 +186,29 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 
 	var LaunchSpecifications []*ec2.SpotFleetLaunchSpecification
 	for _, instanceType := range strings.Split(instanceTypes, ",") {
-		LaunchSpecifications = append(LaunchSpecifications, &ec2.SpotFleetLaunchSpecification{
-			IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
-				Name: instanceRoleResponse.Role.RoleName,
-			},
-			ImageId:        latestImage.ImageId,
-			InstanceType:   aws.String(instanceType),
-			KeyName:        aws.String(key),
-			SecurityGroups: SecurityGroups,
-			SubnetId:       aws.String(subnets),
-			UserData:       aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
-		})
+		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{
+			IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Name: instanceRoleResponse.Role.RoleName},
+			EbsOptimized:       aws.Bool(ebs),
+			ImageId:            latestImage.ImageId,
+			InstanceType:       aws.String(instanceType),
+			SecurityGroups:     SecurityGroups,
+			SubnetId:           aws.String(subnets),
+			UserData:           aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
+		}
+
+		if kernelID != "" {
+			SpotFleetLaunchSpecification.KernelId = aws.String(kernelID)
+		}
+
+		if key != "" {
+			SpotFleetLaunchSpecification.KeyName = aws.String(key)
+		}
+
+		if monitoring {
+			SpotFleetLaunchSpecification.Monitoring = &ec2.SpotFleetMonitoring{Enabled: aws.Bool(monitoring)}
+		}
+
+		LaunchSpecifications = append(LaunchSpecifications, &SpotFleetLaunchSpecification)
 	}
 
 	SpotFleetRequestConfig := ec2.SpotFleetRequestConfigData{
@@ -227,9 +242,6 @@ var clustersNewSpotFleetCmd = &cobra.Command{
 func init() {
 	clustersCmd.AddCommand(clustersNewSpotFleetCmd)
 
-	clustersNewSpotFleetCmd.Flags().StringVar(&key, "key", "", "Key name to access the instances.")
-	clustersNewSpotFleetCmd.MarkFlagRequired("key")
-
 	clustersNewSpotFleetCmd.Flags().StringVar(&spotPrice, "spot-price", "", "Top price to pay for the spot instances.")
 	clustersNewSpotFleetCmd.MarkFlagRequired("spot-price")
 
@@ -245,11 +257,11 @@ func init() {
 	clustersNewSpotFleetCmd.Flags().StringVar(&subnets, "subnets", "", "Type of instance to be used by the Spot Fleet (separeted by comma ',').")
 	clustersNewSpotFleetCmd.MarkFlagRequired("subnets")
 
-	clustersNewSpotFleetCmd.Flags().StringVar(&allocationStrategy, "allocation-strategy", "", "diversified or lowestPrice (default: lowestPrice).")
-
-	clustersNewSpotFleetCmd.Flags().StringVar(&spotFleetRole, "spot-fleet-role", "", "IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf.")
-
-	clustersNewSpotFleetCmd.Flags().StringVar(&spotFleetRole, "spot-fleet-role", "", "IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf.")
-
+	clustersNewSpotFleetCmd.Flags().BoolVar(&ebs, "ebs", false, "EBS optimized.")
+	clustersNewSpotFleetCmd.Flags().BoolVar(&monitoring, "monitoring", false, "Enables monitoring for the instances.")
+	clustersNewSpotFleetCmd.Flags().StringVar(&key, "key", "", "Key name to access the instances.")
+	clustersNewSpotFleetCmd.Flags().StringVar(&kernelID, "kernel-id", "", "The ID of the Kernel.")
 	clustersNewSpotFleetCmd.Flags().StringVar(&instanceRole, "instance-role", "", "An instance profile is a container for an IAM role and enables you to pass role information to Amazon EC2 Instance when the instance starts.")
+	clustersNewSpotFleetCmd.Flags().StringVar(&spotFleetRole, "spot-fleet-role", "", "IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf.")
+	clustersNewSpotFleetCmd.Flags().StringVar(&allocationStrategy, "allocation-strategy", "", "diversified or lowestPrice (default: lowestPrice).")
 }
