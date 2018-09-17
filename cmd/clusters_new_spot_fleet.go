@@ -151,6 +151,7 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		os.Exit(1)
 	}
 
+	// TODO: automaticaly --create-roles if does not exist
 	if spotFleetRole == "" {
 		spotFleetRole = "ecsSpotFleetRole"
 	}
@@ -164,6 +165,7 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		os.Exit(1)
 	}
 
+	// TODO: automaticaly --create-roles if does not exist
 	if instanceRole == "" {
 		instanceRole = "ecsInstanceRole"
 	}
