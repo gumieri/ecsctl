@@ -29,7 +29,7 @@ var monitoring bool
 var key string
 var ebs bool
 
-var userData = `
+var spotFleetUserData = `
 #!/bin/bash
 echo ECS_CLUSTER={{.Cluster}} >> /etc/ecs/ecs.config
 echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config
@@ -73,44 +73,6 @@ EOF
 chmod +x /usr/local/bin/spot-instance-termination-notice-handler.sh
 `
 
-func latestAmiEcsOptimized() (latestImage ec2.Image, err error) {
-	result, err := ec2I.DescribeImages(&ec2.DescribeImagesInput{
-		Filters: []*ec2.Filter{
-			{
-				Name:   aws.String("state"),
-				Values: []*string{aws.String("available")},
-			},
-			{
-				// Amazon ECS Images
-				Name:   aws.String("owner-alias"),
-				Values: []*string{aws.String("amazon")},
-			},
-			{
-				Name:   aws.String("name"),
-				Values: []*string{aws.String("amzn-ami-?????????-amazon-ecs-optimized")},
-			},
-		},
-	})
-
-	if err != nil {
-		return
-	}
-
-	for _, image := range result.Images {
-		if aws.StringValue(latestImage.CreationDate) < aws.StringValue(image.CreationDate) {
-			latestImage = *image
-			continue
-		}
-	}
-
-	return
-}
-
-type templateData struct {
-	Cluster string
-	Region  string
-}
-
 func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
@@ -118,26 +80,26 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		},
 	})
 
-	if len(clustersDescription.Clusters) == 0 {
-		fmt.Println(errors.New("Cluster informed not found"))
-		os.Exit(1)
-	}
-
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
+	if len(clustersDescription.Clusters) == 0 {
+		fmt.Println(errors.New("Cluster informed not found"))
+		os.Exit(1)
+	}
+
 	c := clustersDescription.Clusters[0]
 
-	tmpl, err := template.New("UserData").Parse(userData)
+	tmpl, err := template.New("UserData").Parse(spotFleetUserData)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
 	userDataF := new(bytes.Buffer)
-	err = tmpl.Execute(userDataF, templateData{
+	err = tmpl.Execute(userDataF, templateUserData{
 		Cluster: *c.ClusterName,
 		Region:  aws.StringValue(AWSSession.Config.Region),
 	})
@@ -188,6 +150,7 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		})
 	}
 
+	// TODO: AWS Tags
 	var LaunchSpecifications []*ec2.SpotFleetLaunchSpecification
 	for _, instanceType := range strings.Split(instanceTypes, ",") {
 		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{
