@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -18,11 +19,14 @@ import (
 var cfgFile string
 var profile string
 var region string
+var cluster string
 
 var ecsI *ecs.ECS
 var ec2I *ec2.EC2
 var iamI *iam.IAM
-var AWSSession *session.Session
+var cwlI *cloudwatchlogs.CloudWatchLogs
+
+var awsSession *session.Session
 
 func instanceAWSObjects(cmd *cobra.Command, args []string) {
 	awsConfig := aws.Config{}
@@ -35,11 +39,12 @@ func instanceAWSObjects(cmd *cobra.Command, args []string) {
 		awsConfig.Credentials = credentials.NewSharedCredentials("", profile)
 	}
 
-	AWSSession = session.New(&awsConfig)
+	awsSession = session.New(&awsConfig)
 
-	ecsI = ecs.New(AWSSession)
-	ec2I = ec2.New(AWSSession)
-	iamI = iam.New(AWSSession)
+	ecsI = ecs.New(awsSession)
+	ec2I = ec2.New(awsSession)
+	iamI = iam.New(awsSession)
+	cwlI = cloudwatchlogs.New(awsSession)
 }
 
 var rootCmd = &cobra.Command{

@@ -101,7 +101,7 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	userDataF := new(bytes.Buffer)
 	err = tmpl.Execute(userDataF, templateUserData{
 		Cluster: *c.ClusterName,
-		Region:  aws.StringValue(AWSSession.Config.Region),
+		Region:  aws.StringValue(awsSession.Config.Region),
 	})
 
 	if err != nil {
