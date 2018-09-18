@@ -26,5 +26,6 @@ It is organized by subcommands / categories:
 
 ### `task-definitions` commands
 ```
+  list        List Task Definition Families
   edit        Edit a Task Definition
 ```
