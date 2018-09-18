@@ -22,6 +22,7 @@ var region string
 var ecsI *ecs.ECS
 var ec2I *ec2.EC2
 var iamI *iam.IAM
+var AWSSession *session.Session
 
 func instanceAWSObjects(cmd *cobra.Command, args []string) {
 	awsConfig := aws.Config{}
@@ -34,11 +35,11 @@ func instanceAWSObjects(cmd *cobra.Command, args []string) {
 		awsConfig.Credentials = credentials.NewSharedCredentials("", profile)
 	}
 
-	awsSession := session.New(&awsConfig)
+	AWSSession = session.New(&awsConfig)
 
-	ecsI = ecs.New(awsSession)
-	ec2I = ec2.New(awsSession)
-	iamI = iam.New(awsSession)
+	ecsI = ecs.New(AWSSession)
+	ec2I = ec2.New(AWSSession)
+	iamI = iam.New(AWSSession)
 }
 
 var rootCmd = &cobra.Command{

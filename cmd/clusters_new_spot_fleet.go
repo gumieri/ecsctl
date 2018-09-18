@@ -37,7 +37,7 @@ export PATH=/usr/local/bin:$PATH
 yum -y install jq
 easy_install pip
 pip install awscli
-aws configure set default.region us-east-1
+aws configure set default.region {{.Region}}
 cat <<EOF > /etc/init/spot-instance-termination-notice-handler.conf
 description "Start spot instance termination handler monitoring script"
 author "Amazon Web Services"
@@ -108,6 +108,7 @@ func latestAmiEcsOptimized() (latestImage ec2.Image, err error) {
 
 type templateData struct {
 	Cluster string
+	Region  string
 }
 
 func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
@@ -138,6 +139,7 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	userDataF := new(bytes.Buffer)
 	err = tmpl.Execute(userDataF, templateData{
 		Cluster: *c.ClusterName,
+		Region:  aws.StringValue(AWSSession.Config.Region),
 	})
 
 	if err != nil {
@@ -244,26 +246,23 @@ var clustersNewSpotFleetCmd = &cobra.Command{
 func init() {
 	clustersCmd.AddCommand(clustersNewSpotFleetCmd)
 
-	clustersNewSpotFleetCmd.Flags().StringVar(&spotPrice, "spot-price", "", "Top price to pay for the spot instances.")
+	flags := clustersNewSpotFleetCmd.Flags()
+	flags.StringVar(&spotPrice, "spot-price", "", "REQUIRED - Top price to pay for the spot instances.")
+	flags.Int64Var(&targetCapacity, "target-capacity", 0, "REQUIRED - The capacity amout defined for the cluster.")
+	flags.StringVar(&instanceTypes, "instance-types", "", "REQUIRED - Types of instance to be used by the Spot Fleet (separeted by comma ',').")
+	flags.StringVar(&securityGroups, "security-groups", "", "REQUIRED - Security Groups for the instances (separeted by comma ',').")
+	flags.StringVar(&subnets, "subnets", "", "REQUIRED - Type of instance to be used by the Spot Fleet (separeted by comma ',').")
+	flags.BoolVar(&ebs, "ebs", false, "EBS optimized.")
+	flags.BoolVar(&monitoring, "monitoring", false, "Enables monitoring for the instances.")
+	flags.StringVar(&key, "key", "", "Key name to access the instances.")
+	flags.StringVar(&kernelID, "kernel-id", "", "The ID of the Kernel.")
+	flags.StringVar(&instanceRole, "instance-role", "", "An instance profile is a container for an IAM role and enables you to pass role information to Amazon EC2 Instance when the instance starts.")
+	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", "IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf.")
+	flags.StringVar(&allocationStrategy, "allocation-strategy", "", "Diversified or lowestPrice (default: lowestPrice).")
+
 	clustersNewSpotFleetCmd.MarkFlagRequired("spot-price")
-
-	clustersNewSpotFleetCmd.Flags().Int64Var(&targetCapacity, "target-capacity", 0, "The capacity amout defined for the cluster.")
 	clustersNewSpotFleetCmd.MarkFlagRequired("target-capacity")
-
-	clustersNewSpotFleetCmd.Flags().StringVar(&instanceTypes, "instance-types", "", "Types of instance to be used by the Spot Fleet (separeted by comma ',').")
 	clustersNewSpotFleetCmd.MarkFlagRequired("instance-types")
-
-	clustersNewSpotFleetCmd.Flags().StringVar(&securityGroups, "security-groups", "", "Security Groups for the instances (separeted by comma ',').")
 	clustersNewSpotFleetCmd.MarkFlagRequired("security-groups")
-
-	clustersNewSpotFleetCmd.Flags().StringVar(&subnets, "subnets", "", "Type of instance to be used by the Spot Fleet (separeted by comma ',').")
 	clustersNewSpotFleetCmd.MarkFlagRequired("subnets")
-
-	clustersNewSpotFleetCmd.Flags().BoolVar(&ebs, "ebs", false, "EBS optimized.")
-	clustersNewSpotFleetCmd.Flags().BoolVar(&monitoring, "monitoring", false, "Enables monitoring for the instances.")
-	clustersNewSpotFleetCmd.Flags().StringVar(&key, "key", "", "Key name to access the instances.")
-	clustersNewSpotFleetCmd.Flags().StringVar(&kernelID, "kernel-id", "", "The ID of the Kernel.")
-	clustersNewSpotFleetCmd.Flags().StringVar(&instanceRole, "instance-role", "", "An instance profile is a container for an IAM role and enables you to pass role information to Amazon EC2 Instance when the instance starts.")
-	clustersNewSpotFleetCmd.Flags().StringVar(&spotFleetRole, "spot-fleet-role", "", "IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf.")
-	clustersNewSpotFleetCmd.Flags().StringVar(&allocationStrategy, "allocation-strategy", "", "diversified or lowestPrice (default: lowestPrice).")
 }
