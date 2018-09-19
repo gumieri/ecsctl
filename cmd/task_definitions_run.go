@@ -21,7 +21,7 @@ import (
 var revision string
 var follow bool
 
-type OutputConfiguration struct {
+type outputConfiguration struct {
 	Expand         bool
 	Raw            bool
 	RawString      bool
@@ -31,7 +31,7 @@ type OutputConfiguration struct {
 	NoColor        bool
 }
 
-func (c *OutputConfiguration) Formatter() *colorjson.Formatter {
+func (c *outputConfiguration) Formatter() *colorjson.Formatter {
 	formatter := colorjson.NewFormatter()
 
 	if c.Expand {
@@ -122,7 +122,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 
 	var lastSeenTime *int64
 	var seenEventIDs map[string]bool
-	output := OutputConfiguration{}
+	output := outputConfiguration{}
 	formatter := output.Formatter()
 
 	clearSeenEventIds := func() {
@@ -156,13 +156,17 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		return !lastPage
 	}
 
-	time.Sleep(10 * time.Second)
-
+	retryCount := 0
+	retryLimit := 50
 	for {
 		err := cwlI.FilterLogEventsPages(&cwInput, handlePage)
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			retryCount = retryCount + 1
+
+			if retryCount >= retryLimit {
+				fmt.Println(err.Error())
+				os.Exit(1)
+			}
 		}
 
 		if lastSeenTime != nil {
@@ -179,7 +183,8 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 
-		if aws.StringValue(tasksStatus.Tasks[0].LastStatus) != "RUNNING" {
+		status := aws.StringValue(tasksStatus.Tasks[0].LastStatus)
+		if status == "STOPPED" {
 			os.Exit(0)
 		}
 
