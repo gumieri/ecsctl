@@ -11,8 +11,8 @@ script:
 - GOOS=darwin GOARCH=amd64 go build -o release/ecsctl-Darwin-x86_64
 - GOOS=darwin GOARCH=386 go build -o release/ecsctl-Darwin-i386
 - go get -u github.com/inconshreveable/mousetrap
-- GOOS=windows GOARCH=amd64 go build -o release/ecsctl-Windows-x86_64.exe --ldflags="-H windowsgui"
-- GOOS=windows GOARCH=386 go build -o release/ecsctl-Windows-i386.exe --ldflags="-H windowsgui"
+- GOOS=windows GOARCH=amd64 go build -o release/ecsctl-Windows-x86_64.exe
+- GOOS=windows GOARCH=386 go build -o release/ecsctl-Windows-i386.exe
 deploy:
   provider: releases
   api_key:
