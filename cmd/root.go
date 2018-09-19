@@ -28,6 +28,15 @@ var cwlI *cloudwatchlogs.CloudWatchLogs
 
 var awsSession *session.Session
 
+func must(err error) {
+	if err == nil {
+		return
+	}
+
+	fmt.Println(err.Error())
+	os.Exit(1)
+}
+
 func instanceAWSObjects(cmd *cobra.Command, args []string) {
 	awsConfig := aws.Config{}
 

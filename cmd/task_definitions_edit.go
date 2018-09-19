@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	editor "github.com/gumieri/open-in-editor"
+	oie "github.com/gumieri/open-in-editor"
 	"github.com/spf13/cobra"
 )
 
@@ -17,14 +18,18 @@ var editorCommand string
 func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	taskDefinition := args[0]
 
+	if editorCommand == "" {
+		editorCommand = os.Getenv("EDITOR")
+	}
+
+	if editorCommand == "" {
+		must(errors.New("no editor defined"))
+	}
+
 	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: aws.String(taskDefinition),
 	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(err)
 
 	td := tdDescription.TaskDefinition
 
@@ -41,51 +46,33 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 		Volumes:                 td.Volumes,
 	}
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
-	if editorCommand == "" {
-		editorCommand = "vim"
-	}
-
 	jsonTdDescription, err := json.MarshalIndent(newTD, "", "  ")
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(err)
 
-	edited, err := editor.GetContentFromTemporaryFile(editorCommand, taskDefinition+".json", string(jsonTdDescription))
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	editor := oie.Editor{Command: editorCommand}
+	must(editor.OpenTempFile(oie.File{
+		FileName: taskDefinition + ".json",
+		Content:  jsonTdDescription,
+	}))
+
+	file, err := editor.LastFile()
+	must(err)
 
 	var editedTD *ecs.RegisterTaskDefinitionInput
-	err = json.Unmarshal([]byte(edited), &editedTD)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(json.Unmarshal(file.Content, &editedTD))
 
 	newTDDescription, err := ecsI.RegisterTaskDefinition(editedTD)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(err)
 
 	newFamilyRevision := aws.StringValue(newTDDescription.TaskDefinition.Family) + ":" + strconv.FormatInt(aws.Int64Value(newTDDescription.TaskDefinition.Revision), 10)
 
 	fmt.Println(newFamilyRevision)
 
 	oldFamilyRevision := aws.StringValue(td.Family) + ":" + strconv.FormatInt(aws.Int64Value(td.Revision), 10)
-	_, err = ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{TaskDefinition: aws.String(oldFamilyRevision)})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	_, err = ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{
+		TaskDefinition: aws.String(oldFamilyRevision),
+	})
+	must(err)
 }
 
 var taskDefinitionsEditCmd = &cobra.Command{
