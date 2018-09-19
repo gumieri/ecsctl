@@ -28,4 +28,5 @@ It is organized by subcommands / categories:
 ```
   list        List Task Definition Families
   edit        Edit a Task Definition
+  run         Run a Task Definition
 ```
