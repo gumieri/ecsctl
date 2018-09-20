@@ -28,7 +28,6 @@ var kernelID string
 var monitoring bool
 var key string
 var ebs bool
-var tags string
 
 var spotFleetUserData = `
 #!/bin/bash

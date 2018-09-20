@@ -94,6 +94,15 @@ func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
 		MaxCount:           aws.Int64(maximum),
 	}
 
+	if tags != "" {
+		RunInstancesInput.TagSpecifications = []*ec2.TagSpecification{
+			&ec2.TagSpecification{
+				ResourceType: aws.String("instance"),
+				Tags:         parseTags(tags),
+			},
+		}
+	}
+
 	if credit != "" {
 		RunInstancesInput.CreditSpecification = &ec2.CreditSpecificationRequest{
 			CpuCredits: aws.String(credit),
@@ -145,6 +154,8 @@ func init() {
 	flags.StringVar(&securityGroups, "security-groups", "", "Security Groups for the instances (separeted by comma ',').")
 
 	flags.StringVar(&credit, "credit", "", "The credit option for CPU usage of a T2 or T3 instance (valid values: 'standard' or 'unlimited').")
+
+	flags.StringVar(&tags, "tags", "", "Tags to Spot Fleet instances ('key=value' separeted by comma ','.).\n example: Name=sample,Project=sample,Lorem=Ipsum")
 
 	flags.Int64Var(&minimum, "min", 1, "The minimum number of instances to launch. If you specify a minimum that is more instances than Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches no instances (default: 1).")
 
