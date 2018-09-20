@@ -48,7 +48,7 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	must(err)
 
 	editor := oie.Editor{Command: editorCommand}
-	must(editor.OpenTempFile(oie.File{
+	must(editor.OpenTempFile(&oie.File{
 		FileName: taskDefinition + ".json",
 		Content:  jsonTdDescription,
 	}))
