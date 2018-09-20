@@ -13,8 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var editorCommand string
-
 func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	taskDefinition := args[0]
 
@@ -85,5 +83,5 @@ var taskDefinitionsEditCmd = &cobra.Command{
 func init() {
 	taskDefinitionsCmd.AddCommand(taskDefinitionsEditCmd)
 
-	taskDefinitionsEditCmd.Flags().StringVar(&editorCommand, "editor", "", "Override default text editor.")
+	taskDefinitionsEditCmd.Flags().StringVar(&editorCommand, "editor", "", editorCommandSpec)
 }

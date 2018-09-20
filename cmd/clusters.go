@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var tags string
-
 type templateUserData struct {
 	Cluster string
 	Region  string

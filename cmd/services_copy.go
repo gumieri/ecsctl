@@ -79,8 +79,6 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 	}
 }
 
-var toCluster string
-
 var servicesCopyCmd = &cobra.Command{
 	Use:   "copy [services...]",
 	Short: "Copy a service to another cluster",
@@ -91,10 +89,13 @@ var servicesCopyCmd = &cobra.Command{
 func init() {
 	servicesCmd.AddCommand(servicesCopyCmd)
 
-	servicesCopyCmd.Flags().StringVar(&toCluster, "to-cluster", "", "AWS ECS cluster target where the copy will be created")
+	flags := servicesCopyCmd.Flags()
+
+	flags.StringVar(&toCluster, "to-cluster", "", requiredSpec+toClusterSpec)
+	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+
+	servicesCopyCmd.MarkFlagRequired("cluster")
 	servicesCopyCmd.MarkFlagRequired("to-cluster")
 
-	servicesCopyCmd.Flags().StringVarP(&cluster, "cluster", "c", "", "AWS ECS cluster")
 	viper.BindPFlag("cluster", servicesCopyCmd.Flags().Lookup("cluster"))
-	servicesCopyCmd.MarkFlagRequired("cluster")
 }

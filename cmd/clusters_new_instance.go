@@ -16,12 +16,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var instanceType string
-var subnet string
-var credit string
-var minimum int64
-var maximum int64
-
 var ec2InstanceUserData = `
 #!/bin/bash
 echo ECS_CLUSTER={{.Cluster}} >> /etc/ecs/ecs.config;echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;
@@ -148,19 +142,17 @@ func init() {
 	clustersCmd.AddCommand(clustersNewInstanceCmd)
 
 	flags := clustersNewInstanceCmd.Flags()
-	flags.StringVar(&instanceType, "instance-type", "", "REQUIRED - Type of instance to be launched.")
-	flags.StringVar(&key, "key", "", "Key name to access the instances.")
-	flags.StringVar(&subnet, "subnet", "", "REQUIRED - The Subnet ID to launch the instance.")
-	flags.StringVar(&securityGroups, "security-groups", "", "Security Groups for the instances (separeted by comma ',').")
 
-	flags.StringVar(&credit, "credit", "", "The credit option for CPU usage of a T2 or T3 instance (valid values: 'standard' or 'unlimited').")
+	flags.Int64Var(&minimum, "min", 1, minimumSpec)
+	flags.Int64Var(&maximum, "max", 1, maximumSpec)
 
-	flags.StringVar(&tags, "tags", "", "Tags to Spot Fleet instances ('key=value' separeted by comma ','.).\n example: Name=sample,Project=sample,Lorem=Ipsum")
+	flags.StringVar(&key, "key", "", keySpec)
+	flags.StringVar(&tags, "tags", "", tagsSpec)
+	flags.StringVar(&credit, "credit", "", creditSpec)
+	flags.StringVar(&subnet, "subnet", "", requiredSpec+subnetSpec)
+	flags.StringVar(&instanceType, "instance-type", "", requiredSpec+instanceTypeSpec)
+	flags.StringVar(&securityGroups, "security-groups", "", securityGroupsSpec)
 
-	flags.Int64Var(&minimum, "min", 1, "The minimum number of instances to launch. If you specify a minimum that is more instances than Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches no instances (default: 1).")
-
-	flags.Int64Var(&maximum, "max", 1, "The maximum number of instances to launch. If you specify more instances than Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches the largest possible number of instances above MinCount (default: 1).")
-
-	clustersNewSpotFleetCmd.MarkFlagRequired("instance-type")
 	clustersNewSpotFleetCmd.MarkFlagRequired("subnet")
+	clustersNewSpotFleetCmd.MarkFlagRequired("instance-type")
 }

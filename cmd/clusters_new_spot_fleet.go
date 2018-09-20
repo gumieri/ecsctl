@@ -16,19 +16,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var spotPrice string
-var spotFleetRole string
-var instanceRole string
-var targetCapacity int64
-var allocationStrategy string
-var instanceTypes string
-var securityGroups string
-var subnets string
-var kernelID string
-var monitoring bool
-var key string
-var ebs bool
-
 var spotFleetUserData = `
 #!/bin/bash
 echo ECS_CLUSTER={{.Cluster}} >> /etc/ecs/ecs.config
@@ -219,23 +206,26 @@ func init() {
 	clustersCmd.AddCommand(clustersNewSpotFleetCmd)
 
 	flags := clustersNewSpotFleetCmd.Flags()
-	flags.StringVar(&spotPrice, "spot-price", "", "REQUIRED - Top price to pay for the spot instances.")
-	flags.Int64Var(&targetCapacity, "target-capacity", 0, "REQUIRED - The capacity amout defined for the cluster.")
-	flags.StringVar(&instanceTypes, "instance-types", "", "REQUIRED - Types of instance to be used by the Spot Fleet (separeted by comma ',').")
-	flags.StringVar(&securityGroups, "security-groups", "", "REQUIRED - Security Groups for the instances (separeted by comma ',').")
-	flags.StringVar(&subnets, "subnets", "", "REQUIRED - Type of instance to be used by the Spot Fleet (separeted by comma ',').")
-	flags.BoolVar(&ebs, "ebs", false, "EBS optimized.")
-	flags.BoolVar(&monitoring, "monitoring", false, "Enables monitoring for the instances.")
-	flags.StringVar(&key, "key", "", "Key name to access the instances.")
-	flags.StringVar(&tags, "tags", "", "Tags to Spot Fleet instances ('key=value' separeted by comma ','.).\n example: Name=sample,Project=sample,Lorem=Ipsum")
-	flags.StringVar(&kernelID, "kernel-id", "", "The ID of the Kernel.")
-	flags.StringVar(&instanceRole, "instance-role", "", "An instance profile is a container for an IAM role and enables you to pass role information to Amazon EC2 Instance when the instance starts.")
-	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", "IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf.")
-	flags.StringVar(&allocationStrategy, "allocation-strategy", "", "Diversified or lowestPrice (default: lowestPrice).")
 
+	flags.BoolVar(&ebs, "ebs", false, ebsSpec)
+	flags.BoolVar(&monitoring, "monitoring", false, monitoringSpec)
+
+	flags.Int64Var(&targetCapacity, "target-capacity", 0, requiredSpec+targetCapacitySpec)
+
+	flags.StringVar(&key, "key", "", keySpec)
+	flags.StringVar(&tags, "tags", "", tagsSpec)
+	flags.StringVar(&subnets, "subnets", "", requiredSpec+subnetsSpec)
+	flags.StringVar(&kernelID, "kernel-id", "", kernelIDSpec)
+	flags.StringVar(&spotPrice, "spot-price", "", requiredSpec+spotPriceSpec)
+	flags.StringVar(&instanceRole, "instance-role", "", instanceRoleSpec)
+	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", spotFleetRoleSpec)
+	flags.StringVar(&instanceTypes, "instance-types", "", requiredSpec+instanceTypesSpec)
+	flags.StringVar(&securityGroups, "security-groups", "", requiredSpec+securityGroupsSpec)
+	flags.StringVar(&allocationStrategy, "allocation-strategy", "lowestPrice", allocationStrategySpec)
+
+	clustersNewSpotFleetCmd.MarkFlagRequired("subnets")
 	clustersNewSpotFleetCmd.MarkFlagRequired("spot-price")
 	clustersNewSpotFleetCmd.MarkFlagRequired("target-capacity")
 	clustersNewSpotFleetCmd.MarkFlagRequired("instance-types")
 	clustersNewSpotFleetCmd.MarkFlagRequired("security-groups")
-	clustersNewSpotFleetCmd.MarkFlagRequired("subnets")
 }

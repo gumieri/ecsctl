@@ -13,11 +13,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var image string
-var containerName string
-var repository string
-var tag string
-
 func servicesDeployRun(cmd *cobra.Command, args []string) {
 	service := args[0]
 
@@ -147,12 +142,16 @@ var servicesDeployCmd = &cobra.Command{
 func init() {
 	servicesCmd.AddCommand(servicesDeployCmd)
 
-	servicesDeployCmd.Flags().StringVarP(&image, "image", "i", "", "AWS ECR image")
-	servicesDeployCmd.Flags().StringVar(&containerName, "container", "", "Container name from Task Definition")
-	servicesDeployCmd.Flags().StringVarP(&repository, "repository", "r", "", "AWS ECR repository name")
-	servicesDeployCmd.Flags().StringVarP(&tag, "tag", "t", "", "AWS ECR image tag")
+	flags := servicesDeployCmd.Flags()
 
-	servicesDeployCmd.Flags().StringVarP(&cluster, "cluster", "c", "", "AWS ECS cluster")
-	viper.BindPFlag("cluster", servicesDeployCmd.Flags().Lookup("cluster"))
+	flags.StringVar(&containerName, "container", "", containerNameSpec)
+
+	flags.StringVarP(&tag, "tag", "t", "", tagSpec)
+	flags.StringVarP(&image, "image", "i", "", imageSpec)
+	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+	flags.StringVarP(&repository, "repository", "r", "", repositorySpec)
+
 	servicesDeployCmd.MarkFlagRequired("cluster")
+
+	viper.BindPFlag("cluster", servicesDeployCmd.Flags().Lookup("cluster"))
 }

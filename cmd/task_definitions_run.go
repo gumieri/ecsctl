@@ -18,9 +18,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var revision string
-var follow bool
-
 type outputConfiguration struct {
 	Expand         bool
 	Raw            bool
@@ -202,10 +199,15 @@ var taskDefinitionsRunCmd = &cobra.Command{
 func init() {
 	taskDefinitionsCmd.AddCommand(taskDefinitionsRunCmd)
 
-	taskDefinitionsRunCmd.Flags().StringVar(&revision, "revision", "", "AWS ECS cluster")
-	taskDefinitionsRunCmd.Flags().BoolVarP(&follow, "follow", "f", false, "AWS ECS cluster")
+	flags := taskDefinitionsRunCmd.Flags()
 
-	taskDefinitionsRunCmd.Flags().StringVarP(&cluster, "cluster", "c", "", "REQUIRED - AWS ECS cluster")
-	viper.BindPFlag("cluster", taskDefinitionsRunCmd.Flags().Lookup("cluster"))
+	flags.BoolVarP(&follow, "follow", "f", false, followSpec)
+
+	flags.StringVar(&revision, "revision", "", revisionSpec)
+
+	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+
 	taskDefinitionsRunCmd.MarkFlagRequired("cluster")
+
+	viper.BindPFlag("cluster", taskDefinitionsRunCmd.Flags().Lookup("cluster"))
 }

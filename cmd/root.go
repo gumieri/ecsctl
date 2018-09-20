@@ -16,11 +16,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
-var profile string
-var region string
-var cluster string
-
 var ecsI *ecs.ECS
 var ec2I *ec2.EC2
 var iamI *iam.IAM
@@ -74,12 +69,12 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ecsctl.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", cfgFileSpec)
 
-	rootCmd.PersistentFlags().StringVar(&profile, "profile", "", "AWS Profile")
+	rootCmd.PersistentFlags().StringVar(&profile, "profile", "", profileSpec)
 	viper.BindPFlag("profile", rootCmd.PersistentFlags().Lookup("profile"))
 
-	rootCmd.PersistentFlags().StringVar(&region, "region", "", "AWS Region")
+	rootCmd.PersistentFlags().StringVar(&region, "region", "", regionSpec)
 	viper.BindPFlag("region", rootCmd.PersistentFlags().Lookup("region"))
 }
 
