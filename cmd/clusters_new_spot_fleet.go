@@ -28,6 +28,7 @@ var kernelID string
 var monitoring bool
 var key string
 var ebs bool
+var tags string
 
 var spotFleetUserData = `
 #!/bin/bash
@@ -175,6 +176,15 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 			SpotFleetLaunchSpecification.Monitoring = &ec2.SpotFleetMonitoring{Enabled: aws.Bool(monitoring)}
 		}
 
+		if tags != "" {
+			SpotFleetLaunchSpecification.TagSpecifications = []*ec2.SpotFleetTagSpecification{
+				&ec2.SpotFleetTagSpecification{
+					ResourceType: aws.String("instance"),
+					Tags:         parseTags(tags),
+				},
+			}
+		}
+
 		LaunchSpecifications = append(LaunchSpecifications, &SpotFleetLaunchSpecification)
 	}
 
@@ -218,6 +228,7 @@ func init() {
 	flags.BoolVar(&ebs, "ebs", false, "EBS optimized.")
 	flags.BoolVar(&monitoring, "monitoring", false, "Enables monitoring for the instances.")
 	flags.StringVar(&key, "key", "", "Key name to access the instances.")
+	flags.StringVar(&tags, "tags", "", "Tags to Spot Fleet instances ('key=value' separeted by comma ','.).\n example: Name=sample,Project=sample,Lorem=Ipsum")
 	flags.StringVar(&kernelID, "kernel-id", "", "The ID of the Kernel.")
 	flags.StringVar(&instanceRole, "instance-role", "", "An instance profile is a container for an IAM role and enables you to pass role information to Amazon EC2 Instance when the instance starts.")
 	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", "IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf.")
