@@ -58,7 +58,7 @@ var subnet string
 var subnetSpec = `The Subnet ID to launch the instance`
 
 var subnets string
-var subnetsSpec = `Type of instance to be used by the Spot Fleet (separeted by comma ',')`
+var subnetsSpec = `The Subnets IDs to launch the instances (separeted by comma ',')`
 
 var kernelID string
 var kernelIDSpec = `The ID of the Kernel`
