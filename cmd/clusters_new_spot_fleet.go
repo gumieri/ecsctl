@@ -132,9 +132,19 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 
 	var SecurityGroups []*ec2.GroupIdentifier
 	for _, securityGroup := range strings.Split(securityGroups, ",") {
+		sg, err := findSecurityGroup(securityGroup)
+		must(err)
+
 		SecurityGroups = append(SecurityGroups, &ec2.GroupIdentifier{
-			GroupId: aws.String(securityGroup),
+			GroupId: sg.GroupId,
 		})
+	}
+
+	var subnetsIds []string
+	for _, subnet := range strings.Split(subnets, ",") {
+		Subnet, err := findSubnet(subnet)
+		must(err)
+		subnetsIds = append(subnetsIds, aws.StringValue(Subnet.SubnetId))
 	}
 
 	var LaunchSpecifications []*ec2.SpotFleetLaunchSpecification
@@ -145,7 +155,7 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 			ImageId:            latestImage.ImageId,
 			InstanceType:       aws.String(instanceType),
 			SecurityGroups:     SecurityGroups,
-			SubnetId:           aws.String(subnets),
+			SubnetId:           aws.String(strings.Join(subnetsIds, ",")),
 			UserData:           aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
 		}
 

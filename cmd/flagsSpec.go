@@ -56,10 +56,10 @@ var allocationStrategySpec = `The strategy for requesting instances across diffe
 'diversified': Balance Spot instances across selected Availability Zones and instance types`
 
 var subnet string
-var subnetSpec = `The Subnet ID to launch the instance`
+var subnetSpec = `The Subnet (ID or tag 'Name') to launch the instance`
 
 var subnets string
-var subnetsSpec = `The Subnets IDs to launch the instances (separeted by comma ',')`
+var subnetsSpec = `The Subnets (IDs or tags 'Name') to launch the instances (separeted by comma ',')`
 
 var kernelID string
 var kernelIDSpec = `The ID of the Kernel`
@@ -74,7 +74,7 @@ var ebs bool
 var ebsSpec = `Use EBS optimized`
 
 var securityGroups string
-var securityGroupsSpec = `Security Groups for the instances (separeted by comma ',')`
+var securityGroupsSpec = `Security Groups (IDs, names, or tags 'Name') for the instances (separeted by comma ',')`
 
 var instanceType string
 var instanceTypeSpec = `Type of instance to be launched`

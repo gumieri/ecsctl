@@ -27,29 +27,19 @@ func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
 			aws.String(clusters[0]),
 		},
 	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		fmt.Println(errors.New("Cluster informed not found"))
-		os.Exit(1)
+		must(errors.New("Cluster informed not found"))
 	}
 
 	c := clustersDescription.Clusters[0]
 
 	tmpl, err := template.New("UserData").Parse(ec2InstanceUserData)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(err)
 
 	userDataF := new(bytes.Buffer)
-	err = tmpl.Execute(userDataF, templateUserData{
-		Cluster: *c.ClusterName,
-	})
+	must(tmpl.Execute(userDataF, templateUserData{Cluster: *c.ClusterName}))
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -57,10 +47,7 @@ func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	latestImage, err := latestAmiEcsOptimized()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(err)
 
 	// TODO: automaticaly --create-roles if does not exist
 	if instanceRole == "" {
@@ -70,18 +57,17 @@ func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
 	instanceRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
 		RoleName: aws.String(instanceRole),
 	})
+	must(err)
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	subnetDescription, err := findSubnet(subnet)
+	must(err)
 
 	// TODO: AWS Tags
 	RunInstancesInput := ec2.RunInstancesInput{
 		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Name: instanceRoleResponse.Role.RoleName},
 		EbsOptimized:       aws.Bool(ebs),
 		ImageId:            latestImage.ImageId,
-		SubnetId:           aws.String(subnet),
+		SubnetId:           subnetDescription.SubnetId,
 		InstanceType:       aws.String(instanceType),
 		UserData:           aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
 		MinCount:           aws.Int64(minimum),
@@ -105,9 +91,10 @@ func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
 
 	if securityGroups != "" {
 		var sgs []*string
-		for _, value := range strings.Split(securityGroups, ",") {
-			sg := value
-			sgs = append(sgs, &sg)
+		for _, securityGroup := range strings.Split(securityGroups, ",") {
+			sg, err := findSecurityGroup(securityGroup)
+			must(err)
+			sgs = append(sgs, sg.GroupId)
 		}
 		RunInstancesInput.SecurityGroupIds = sgs
 	}
@@ -125,10 +112,7 @@ func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	_, err = ec2I.RunInstances(&RunInstancesInput)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	must(err)
 }
 
 var clustersNewInstanceCmd = &cobra.Command{

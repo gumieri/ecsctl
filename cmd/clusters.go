@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -59,6 +60,100 @@ func latestAmiEcsOptimized() (latestImage ec2.Image, err error) {
 			continue
 		}
 	}
+
+	return
+}
+
+func findSecurityGroup(s string) (securityGroup *ec2.SecurityGroup, err error) {
+	sgd, err := ec2I.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{
+		Filters: []*ec2.Filter{
+			{
+				Name:   aws.String("group-id"),
+				Values: []*string{aws.String(s)},
+			},
+		},
+	})
+
+	if err != nil {
+		return
+	}
+
+	if len(sgd.SecurityGroups) > 0 {
+		securityGroup = sgd.SecurityGroups[0]
+		return
+	}
+
+	sgd, err = ec2I.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{
+		Filters: []*ec2.Filter{
+			{
+				Name:   aws.String("group-name"),
+				Values: []*string{aws.String(s)},
+			},
+		},
+	})
+
+	if len(sgd.SecurityGroups) > 0 {
+		securityGroup = sgd.SecurityGroups[0]
+		return
+	}
+
+	sgd, err = ec2I.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{
+		Filters: []*ec2.Filter{
+			{
+				Name:   aws.String("tag:Name"),
+				Values: []*string{aws.String(s)},
+			},
+		},
+	})
+
+	if len(sgd.SecurityGroups) == 0 {
+		err = fmt.Errorf("SecurityGroup (%s) not found", s)
+		return
+	}
+
+	securityGroup = sgd.SecurityGroups[0]
+
+	return
+}
+
+func findSubnet(s string) (subnet *ec2.Subnet, err error) {
+	sd, err := ec2I.DescribeSubnets(&ec2.DescribeSubnetsInput{
+		Filters: []*ec2.Filter{
+			{
+				Name:   aws.String("subnet-id"),
+				Values: []*string{aws.String(s)},
+			},
+		},
+	})
+
+	if err != nil {
+		return
+	}
+
+	if len(sd.Subnets) > 0 {
+		subnet = sd.Subnets[0]
+		return
+	}
+
+	sd, err = ec2I.DescribeSubnets(&ec2.DescribeSubnetsInput{
+		Filters: []*ec2.Filter{
+			{
+				Name:   aws.String("tag:Name"),
+				Values: []*string{aws.String(s)},
+			},
+		},
+	})
+
+	if err != nil {
+		return
+	}
+
+	if len(sd.Subnets) == 0 {
+		err = fmt.Errorf("Subnet (%s) not found", s)
+		return
+	}
+
+	subnet = sd.Subnets[0]
 
 	return
 }
