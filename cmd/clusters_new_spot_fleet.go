@@ -218,13 +218,13 @@ func init() {
 	flags.SortFlags = false
 
 	flags.StringVar(&subnets, "subnets", "", requiredSpec+subnetsSpec)
-	flags.StringVar(&spotPrice, "spot-price", "", requiredSpec+spotPriceSpec)
 	flags.StringVar(&instanceTypes, "instance-types", "", requiredSpec+instanceTypesSpec)
 	flags.StringVar(&securityGroups, "security-groups", "", requiredSpec+securityGroupsSpec)
 	flags.Int64Var(&targetCapacity, "target-capacity", 1, targetCapacitySpec)
 	flags.StringVar(&instanceRole, "instance-role", "", instanceRoleSpec)
 	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", spotFleetRoleSpec)
 	flags.StringVar(&allocationStrategy, "allocation-strategy", "", allocationStrategySpec)
+	flags.StringVar(&spotPrice, "spot-price", "", spotPriceSpec)
 	flags.BoolVar(&monitoring, "monitoring", false, monitoringSpec)
 	flags.StringVar(&kernelID, "kernel-id", "", kernelIDSpec)
 	flags.BoolVar(&ebs, "ebs", false, ebsSpec)
@@ -232,7 +232,6 @@ func init() {
 	flags.StringVar(&tags, "tags", "", tagsSpec)
 
 	clustersNewSpotFleetCmd.MarkFlagRequired("subnets")
-	clustersNewSpotFleetCmd.MarkFlagRequired("spot-price")
 	clustersNewSpotFleetCmd.MarkFlagRequired("target-capacity")
 	clustersNewSpotFleetCmd.MarkFlagRequired("instance-types")
 	clustersNewSpotFleetCmd.MarkFlagRequired("security-groups")

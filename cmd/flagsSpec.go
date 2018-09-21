@@ -39,7 +39,7 @@ var toCluster string
 var toClusterSpec = `AWS ECS cluster target where the copy will be created`
 
 var spotPrice string
-var spotPriceSpec = `Top price to pay for the spot instances`
+var spotPriceSpec = `Maximum price to pay for the spot instances (default is On-Demand price)`
 
 var spotFleetRole string
 var spotFleetRoleSpec = `IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf`
@@ -56,10 +56,12 @@ var allocationStrategySpec = `The strategy for requesting instances across diffe
 'diversified': Balance Spot instances across selected Availability Zones and instance types`
 
 var subnet string
-var subnetSpec = `The Subnet (ID or tag 'Name') to launch the instance`
+var subnetSpec = `The Subnet (ID or tag 'Name') to launch the instance
+E.g. subnet-123abcd`
 
 var subnets string
-var subnetsSpec = `The Subnets (IDs or tags 'Name') to launch the instances (separeted by comma ',')`
+var subnetsSpec = `The Subnets (IDs or tags 'Name') to launch the instances separeted by comma (,)
+E.g. subnet-123abcd,subnet-456efgh`
 
 var kernelID string
 var kernelIDSpec = `The ID of the Kernel`
@@ -74,13 +76,16 @@ var ebs bool
 var ebsSpec = `Use EBS optimized`
 
 var securityGroups string
-var securityGroupsSpec = `Security Groups (IDs, names, or tags 'Name') for the instances (separeted by comma ',')`
+var securityGroupsSpec = `Security Groups (IDs, names, or tags 'Name') for the instances separeted by comma (,)
+E.g. sg-123abcd,sg-456efgh`
 
 var instanceType string
-var instanceTypeSpec = `Type of instance to be launched`
+var instanceTypeSpec = `Type of instance to be launched
+E.g. m4.large`
 
 var instanceTypes string
-var instanceTypesSpec = `Types of instance to be used by the Spot Fleet (separeted by comma ',')`
+var instanceTypesSpec = `Types of instance to be used by the Spot Fleet separeted by comma (,)
+E.g. m4.large,c4.large,t3.medium`
 
 var credit string
 var creditSpec = `The credit option for CPU usage of a T2 (default 'standard') or T3 (default 'unlimited') instance
@@ -95,5 +100,5 @@ var maximumSpec = `The maximum number of instances to launch
 If you specify more instances than Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches the largest possible number of instances above MinCount`
 
 var tags string
-var tagsSpec = `Tags to Spot Fleet instances ('key=value' separeted by comma ',')
-Ex: Name=sample,Project=sample,Lorem=Ipsum`
+var tagsSpec = `Tags to Spot Fleet instances as 'key=value' separeted by comma (,)
+E.g. Name=sample,Project=sample,Lorem=Ipsum`
