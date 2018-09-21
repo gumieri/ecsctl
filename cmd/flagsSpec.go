@@ -1,6 +1,6 @@
 package cmd
 
-var requiredSpec = "[REQUIRED] "
+var requiredSpec = "REQUIRED - "
 
 var revision string
 var revisionSpec = `AWS ECS cluster`
@@ -51,8 +51,9 @@ var targetCapacity int64
 var targetCapacitySpec = `The capacity amout defined for the cluster`
 
 var allocationStrategy string
-var allocationStrategySpec = `
-Valid values: 'diversified' or 'lowestPrice'`
+var allocationStrategySpec = `The strategy for requesting instances across different Availability Zones. Valid values:
+'lowestPrice': Automatically select the cheapest Availability Zone and instance type (default)
+'diversified': Balance Spot instances across selected Availability Zones and instance types`
 
 var subnet string
 var subnetSpec = `The Subnet ID to launch the instance`
@@ -70,7 +71,7 @@ var key string
 var keySpec = `Key name to access the instances`
 
 var ebs bool
-var ebsSpec = `EBS optimized`
+var ebsSpec = `Use EBS optimized`
 
 var securityGroups string
 var securityGroupsSpec = `Security Groups for the instances (separeted by comma ',')`

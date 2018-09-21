@@ -137,7 +137,6 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		})
 	}
 
-	// TODO: AWS Tags
 	var LaunchSpecifications []*ec2.SpotFleetLaunchSpecification
 	for _, instanceType := range strings.Split(instanceTypes, ",") {
 		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{
@@ -206,22 +205,21 @@ func init() {
 	clustersCmd.AddCommand(clustersNewSpotFleetCmd)
 
 	flags := clustersNewSpotFleetCmd.Flags()
+	flags.SortFlags = false
 
-	flags.BoolVar(&ebs, "ebs", false, ebsSpec)
-	flags.BoolVar(&monitoring, "monitoring", false, monitoringSpec)
-
-	flags.Int64Var(&targetCapacity, "target-capacity", 0, requiredSpec+targetCapacitySpec)
-
-	flags.StringVar(&key, "key", "", keySpec)
-	flags.StringVar(&tags, "tags", "", tagsSpec)
 	flags.StringVar(&subnets, "subnets", "", requiredSpec+subnetsSpec)
-	flags.StringVar(&kernelID, "kernel-id", "", kernelIDSpec)
 	flags.StringVar(&spotPrice, "spot-price", "", requiredSpec+spotPriceSpec)
-	flags.StringVar(&instanceRole, "instance-role", "", instanceRoleSpec)
-	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", spotFleetRoleSpec)
 	flags.StringVar(&instanceTypes, "instance-types", "", requiredSpec+instanceTypesSpec)
 	flags.StringVar(&securityGroups, "security-groups", "", requiredSpec+securityGroupsSpec)
-	flags.StringVar(&allocationStrategy, "allocation-strategy", "lowestPrice", allocationStrategySpec)
+	flags.Int64Var(&targetCapacity, "target-capacity", 1, targetCapacitySpec)
+	flags.StringVar(&instanceRole, "instance-role", "", instanceRoleSpec)
+	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", spotFleetRoleSpec)
+	flags.StringVar(&allocationStrategy, "allocation-strategy", "", allocationStrategySpec)
+	flags.BoolVar(&monitoring, "monitoring", false, monitoringSpec)
+	flags.StringVar(&kernelID, "kernel-id", "", kernelIDSpec)
+	flags.BoolVar(&ebs, "ebs", false, ebsSpec)
+	flags.StringVar(&key, "key", "", keySpec)
+	flags.StringVar(&tags, "tags", "", tagsSpec)
 
 	clustersNewSpotFleetCmd.MarkFlagRequired("subnets")
 	clustersNewSpotFleetCmd.MarkFlagRequired("spot-price")

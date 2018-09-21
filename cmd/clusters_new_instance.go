@@ -142,16 +142,17 @@ func init() {
 	clustersCmd.AddCommand(clustersNewInstanceCmd)
 
 	flags := clustersNewInstanceCmd.Flags()
+	flags.SortFlags = false
 
-	flags.Int64Var(&minimum, "min", 1, minimumSpec)
-	flags.Int64Var(&maximum, "max", 1, maximumSpec)
+	flags.StringVar(&instanceType, "instance-type", "", requiredSpec+instanceTypeSpec)
+	flags.StringVar(&subnet, "subnet", "", requiredSpec+subnetSpec)
+	flags.StringVar(&securityGroups, "security-groups", "", securityGroupsSpec)
 
 	flags.StringVar(&key, "key", "", keySpec)
 	flags.StringVar(&tags, "tags", "", tagsSpec)
+	flags.Int64Var(&minimum, "min", 1, minimumSpec)
+	flags.Int64Var(&maximum, "max", 1, maximumSpec)
 	flags.StringVar(&credit, "credit", "", creditSpec)
-	flags.StringVar(&subnet, "subnet", "", requiredSpec+subnetSpec)
-	flags.StringVar(&instanceType, "instance-type", "", requiredSpec+instanceTypeSpec)
-	flags.StringVar(&securityGroups, "security-groups", "", securityGroupsSpec)
 
 	clustersNewSpotFleetCmd.MarkFlagRequired("subnet")
 	clustersNewSpotFleetCmd.MarkFlagRequired("instance-type")
