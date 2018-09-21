@@ -21,7 +21,7 @@ var ec2InstanceUserData = `
 echo ECS_CLUSTER={{.Cluster}} >> /etc/ecs/ecs.config;echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;
 `
 
-func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
+func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
 			aws.String(clusters[0]),
@@ -115,17 +115,17 @@ func clustersNewInstanceRun(cmd *cobra.Command, clusters []string) {
 	must(err)
 }
 
-var clustersNewInstanceCmd = &cobra.Command{
-	Use:   "new-instance [cluster]",
-	Short: "Add a new EC2 instance to informed cluster",
+var clustersAddInstanceCmd = &cobra.Command{
+	Use:   "add-instance [cluster]",
+	Short: "Add a add EC2 instance to informed cluster",
 	Args:  cobra.ExactArgs(1),
-	Run:   clustersNewInstanceRun,
+	Run:   clustersAddInstanceRun,
 }
 
 func init() {
-	clustersCmd.AddCommand(clustersNewInstanceCmd)
+	clustersCmd.AddCommand(clustersAddInstanceCmd)
 
-	flags := clustersNewInstanceCmd.Flags()
+	flags := clustersAddInstanceCmd.Flags()
 	flags.SortFlags = false
 
 	flags.StringVar(&instanceType, "instance-type", "", requiredSpec+instanceTypeSpec)
@@ -138,6 +138,6 @@ func init() {
 	flags.Int64Var(&maximum, "max", 1, maximumSpec)
 	flags.StringVar(&credit, "credit", "", creditSpec)
 
-	clustersNewSpotFleetCmd.MarkFlagRequired("subnet")
-	clustersNewSpotFleetCmd.MarkFlagRequired("instance-type")
+	clustersAddSpotFleetCmd.MarkFlagRequired("subnet")
+	clustersAddSpotFleetCmd.MarkFlagRequired("instance-type")
 }

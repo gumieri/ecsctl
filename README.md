@@ -14,8 +14,8 @@ It is organized by subcommands / categories:
 ### `clusters` commands
 ```
   create         Create empty clusters
-  new-instance   Add a new EC2 instance to informed cluster
-  new-spot-fleet Add a new Spot Fleet to informed cluster
+  add-instance   Add a new EC2 instance to informed cluster
+  add-spot-fleet Add a new Spot Fleet to informed cluster
 ```
 
 ### `services` commands

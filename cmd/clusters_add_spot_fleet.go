@@ -60,7 +60,7 @@ EOF
 chmod +x /usr/local/bin/spot-instance-termination-notice-handler.sh
 `
 
-func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
+func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
 			aws.String(clusters[0]),
@@ -204,17 +204,18 @@ func clustersNewSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	}
 }
 
-var clustersNewSpotFleetCmd = &cobra.Command{
-	Use:   "new-spot-fleet [cluster]",
-	Short: "Add a new Spot Fleet to informed cluster",
-	Args:  cobra.ExactArgs(1),
-	Run:   clustersNewSpotFleetRun,
+var clustersAddSpotFleetCmd = &cobra.Command{
+	Use:     "add-spot-fleet [cluster]",
+	Short:   "Add a new Spot Fleet to informed cluster",
+	Args:    cobra.ExactArgs(1),
+	Aliases: []string{"add-spotfleet"},
+	Run:     clustersAddSpotFleetRun,
 }
 
 func init() {
-	clustersCmd.AddCommand(clustersNewSpotFleetCmd)
+	clustersCmd.AddCommand(clustersAddSpotFleetCmd)
 
-	flags := clustersNewSpotFleetCmd.Flags()
+	flags := clustersAddSpotFleetCmd.Flags()
 	flags.SortFlags = false
 
 	flags.StringVar(&subnets, "subnets", "", requiredSpec+subnetsSpec)
@@ -231,8 +232,8 @@ func init() {
 	flags.StringVar(&key, "key", "", keySpec)
 	flags.StringVar(&tags, "tags", "", tagsSpec)
 
-	clustersNewSpotFleetCmd.MarkFlagRequired("subnets")
-	clustersNewSpotFleetCmd.MarkFlagRequired("target-capacity")
-	clustersNewSpotFleetCmd.MarkFlagRequired("instance-types")
-	clustersNewSpotFleetCmd.MarkFlagRequired("security-groups")
+	clustersAddSpotFleetCmd.MarkFlagRequired("subnets")
+	clustersAddSpotFleetCmd.MarkFlagRequired("target-capacity")
+	clustersAddSpotFleetCmd.MarkFlagRequired("instance-types")
+	clustersAddSpotFleetCmd.MarkFlagRequired("security-groups")
 }
