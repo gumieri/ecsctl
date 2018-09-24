@@ -51,7 +51,8 @@ var targetCapacity int64
 var targetCapacitySpec = `The capacity amout defined for the cluster`
 
 var allocationStrategy string
-var allocationStrategySpec = `The strategy for requesting instances across different Availability Zones. Valid values:
+var allocationStrategySpec = `The strategy for requesting instances across different Availability Zones.
+Valid values:
 'lowestPrice': Automatically select the cheapest Availability Zone and instance type (default)
 'diversified': Balance Spot instances across selected Availability Zones and instance types`
 
@@ -85,11 +86,14 @@ E.g. m4.large`
 
 var instanceTypes string
 var instanceTypesSpec = `Types of instance to be used by the Spot Fleet separeted by comma (,)
-E.g. m4.large,c4.large,t3.medium`
+It's possible to change the units provided (target capacity) by a specific instance type adding a number after a colon (:) (default 1)
+E.g. m4.large:2,c4.large:2,t3.medium`
 
 var credit string
 var creditSpec = `The credit option for CPU usage of a T2 (default 'standard') or T3 (default 'unlimited') instance
-Valid values: 'standard' or 'unlimited'`
+Valid values:
+'standard'
+'unlimited'`
 
 var minimum int64
 var minimumSpec = `The minimum number of instances to launch

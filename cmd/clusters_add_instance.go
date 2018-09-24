@@ -128,12 +128,12 @@ func init() {
 	flags := clustersAddInstanceCmd.Flags()
 	flags.SortFlags = false
 
-	flags.StringVar(&instanceType, "instance-type", "", requiredSpec+instanceTypeSpec)
-	flags.StringVar(&subnet, "subnet", "", requiredSpec+subnetSpec)
-	flags.StringVar(&securityGroups, "security-groups", "", securityGroupsSpec)
+	flags.StringVarP(&instanceType, "instance-type", "i", "", requiredSpec+instanceTypeSpec)
+	flags.StringVarP(&subnet, "subnet", "n", "", requiredSpec+subnetSpec)
+	flags.StringVarP(&securityGroups, "security-groups", "g", "", securityGroupsSpec)
 
-	flags.StringVar(&key, "key", "", keySpec)
-	flags.StringVar(&tags, "tags", "", tagsSpec)
+	flags.StringVarP(&key, "key", "k", "", keySpec)
+	flags.StringVarP(&tags, "tags", "t", "", tagsSpec)
 	flags.Int64Var(&minimum, "min", 1, minimumSpec)
 	flags.Int64Var(&maximum, "max", 1, maximumSpec)
 	flags.StringVar(&credit, "credit", "", creditSpec)
