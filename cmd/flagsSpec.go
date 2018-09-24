@@ -60,9 +60,9 @@ var subnet string
 var subnetSpec = `The Subnet (ID or tag 'Name') to launch the instance
 E.g. subnet-123abcd`
 
-var subnets string
-var subnetsSpec = `The Subnets (IDs or tags 'Name') to launch the instances separeted by comma (,)
-E.g. subnet-123abcd,subnet-456efgh`
+var subnets []string
+var subnetsSpec = `The Subnet (ID or tag 'Name') to launch the instances. Can be passed multiple times
+E.g. --subnet subnet-123abcd -n subnet-456efgh -n lorem-ipsum`
 
 var kernelID string
 var kernelIDSpec = `The ID of the Kernel`
@@ -76,18 +76,18 @@ var keySpec = `Key name to access the instances`
 var ebs bool
 var ebsSpec = `Use EBS optimized`
 
-var securityGroups string
-var securityGroupsSpec = `Security Groups (IDs, names, or tags 'Name') for the instances separeted by comma (,)
-E.g. sg-123abcd,sg-456efgh`
+var securityGroups []string
+var securityGroupsSpec = `Security Group (ID, name, or tag 'Name') for the instances. Can be passed multiple times
+E.g. --security-group sg-123abcd -g sg-456efgh -g lorem-ipsum`
 
 var instanceType string
 var instanceTypeSpec = `Type of instance to be launched
 E.g. m4.large`
 
-var instanceTypes string
-var instanceTypesSpec = `Types of instance to be used by the Spot Fleet separeted by comma (,)
+var instanceTypes []string
+var instanceTypesSpec = `Type of instance to be used by the Spot Fleet. Can be passed multiple times
 It's possible to change the units provided (target capacity) by a specific instance type adding a number after a colon (:) (default 1)
-E.g. m4.large:2,c4.large:2,t3.medium`
+E.g. --instance-type m4.large:2 -i c4.large:2 -i t3.medium`
 
 var credit string
 var creditSpec = `The credit option for CPU usage of a T2 (default 'standard') or T3 (default 'unlimited') instance
@@ -103,6 +103,6 @@ var maximum int64
 var maximumSpec = `The maximum number of instances to launch
 If you specify more instances than Amazon EC2 can launch in the target Availability Zone, Amazon EC2 launches the largest possible number of instances above MinCount`
 
-var tags string
-var tagsSpec = `Tags to Spot Fleet instances as 'key=value' separeted by comma (,)
-E.g. Name=sample,Project=sample,Lorem=Ipsum`
+var tags []string
+var tagsSpec = `Tag to Spot Fleet instances as 'key=value'. Can be passed multiple times
+E.g. --tag Name=sample -t Project=sample -t Lorem=Ipsum`

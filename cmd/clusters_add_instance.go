@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -74,7 +73,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 		MaxCount:           aws.Int64(maximum),
 	}
 
-	if tags != "" {
+	if len(tags) > 0 {
 		RunInstancesInput.TagSpecifications = []*ec2.TagSpecification{
 			&ec2.TagSpecification{
 				ResourceType: aws.String("instance"),
@@ -89,15 +88,13 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 		}
 	}
 
-	if securityGroups != "" {
-		var sgs []*string
-		for _, securityGroup := range strings.Split(securityGroups, ",") {
-			sg, err := findSecurityGroup(securityGroup)
-			must(err)
-			sgs = append(sgs, sg.GroupId)
-		}
-		RunInstancesInput.SecurityGroupIds = sgs
+	var sgs []*string
+	for _, securityGroup := range securityGroups {
+		sg, err := findSecurityGroup(securityGroup)
+		must(err)
+		sgs = append(sgs, sg.GroupId)
 	}
+	RunInstancesInput.SecurityGroupIds = sgs
 
 	if kernelID != "" {
 		RunInstancesInput.KernelId = aws.String(kernelID)
@@ -130,10 +127,10 @@ func init() {
 
 	flags.StringVarP(&instanceType, "instance-type", "i", "", requiredSpec+instanceTypeSpec)
 	flags.StringVarP(&subnet, "subnet", "n", "", requiredSpec+subnetSpec)
-	flags.StringVarP(&securityGroups, "security-groups", "g", "", securityGroupsSpec)
+	flags.StringSliceVarP(&securityGroups, "security-groups", "g", []string{}, securityGroupsSpec)
 
 	flags.StringVarP(&key, "key", "k", "", keySpec)
-	flags.StringVarP(&tags, "tags", "t", "", tagsSpec)
+	flags.StringSliceVarP(&tags, "tag", "t", []string{}, tagsSpec)
 	flags.Int64Var(&minimum, "min", 1, minimumSpec)
 	flags.Int64Var(&maximum, "max", 1, maximumSpec)
 	flags.StringVar(&credit, "credit", "", creditSpec)

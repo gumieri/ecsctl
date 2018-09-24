@@ -132,7 +132,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	var SecurityGroups []*ec2.GroupIdentifier
-	for _, securityGroup := range strings.Split(securityGroups, ",") {
+	for _, securityGroup := range securityGroups {
 		sg, err := findSecurityGroup(securityGroup)
 		must(err)
 
@@ -142,14 +142,14 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	var subnetsIds []string
-	for _, subnet := range strings.Split(subnets, ",") {
+	for _, subnet := range subnets {
 		Subnet, err := findSubnet(subnet)
 		must(err)
 		subnetsIds = append(subnetsIds, aws.StringValue(Subnet.SubnetId))
 	}
 
 	var LaunchSpecifications []*ec2.SpotFleetLaunchSpecification
-	for _, instanceTypeAndWeight := range strings.Split(instanceTypes, ",") {
+	for _, instanceTypeAndWeight := range instanceTypes {
 		iTWSlice := strings.Split(instanceTypeAndWeight, ":")
 		instanceType := iTWSlice[0]
 
@@ -185,7 +185,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 			SpotFleetLaunchSpecification.Monitoring = &ec2.SpotFleetMonitoring{Enabled: aws.Bool(monitoring)}
 		}
 
-		if tags != "" {
+		if len(tags) > 0 {
 			SpotFleetLaunchSpecification.TagSpecifications = []*ec2.SpotFleetTagSpecification{
 				&ec2.SpotFleetTagSpecification{
 					ResourceType: aws.String("instance"),
@@ -235,9 +235,9 @@ func init() {
 	flags := clustersAddSpotFleetCmd.Flags()
 	flags.SortFlags = false
 
-	flags.StringVarP(&subnets, "subnets", "n", "", requiredSpec+subnetsSpec)
-	flags.StringVarP(&instanceTypes, "instance-types", "i", "", requiredSpec+instanceTypesSpec)
-	flags.StringVarP(&securityGroups, "security-groups", "g", "", requiredSpec+securityGroupsSpec)
+	flags.StringSliceVarP(&subnets, "subnet", "n", []string{}, requiredSpec+subnetsSpec)
+	flags.StringSliceVarP(&instanceTypes, "instance-type", "i", []string{}, requiredSpec+instanceTypesSpec)
+	flags.StringSliceVarP(&securityGroups, "security-group", "g", []string{}, requiredSpec+securityGroupsSpec)
 	flags.Int64VarP(&targetCapacity, "target-capacity", "c", 1, targetCapacitySpec)
 	flags.StringVar(&instanceRole, "instance-role", "", instanceRoleSpec)
 	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", spotFleetRoleSpec)
@@ -247,7 +247,7 @@ func init() {
 	flags.StringVar(&kernelID, "kernel-id", "", kernelIDSpec)
 	flags.BoolVar(&ebs, "ebs", false, ebsSpec)
 	flags.StringVarP(&key, "key", "k", "", keySpec)
-	flags.StringVarP(&tags, "tags", "t", "", tagsSpec)
+	flags.StringSliceVarP(&tags, "tag", "t", []string{}, tagsSpec)
 
 	clustersAddSpotFleetCmd.MarkFlagRequired("subnets")
 	clustersAddSpotFleetCmd.MarkFlagRequired("target-capacity")

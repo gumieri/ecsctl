@@ -14,8 +14,8 @@ type templateUserData struct {
 	Region  string
 }
 
-func parseTags(s string) (parsed []*ec2.Tag) {
-	for _, kv := range strings.Split(s, ",") {
+func parseTags(tags []string) (parsed []*ec2.Tag) {
+	for _, kv := range tags {
 		kvs := strings.Split(kv, "=")
 		if len(kvs) != 2 {
 			continue
