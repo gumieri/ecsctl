@@ -91,7 +91,7 @@ func init() {
 
 	flags := servicesCopyCmd.Flags()
 
-	flags.StringVar(&toCluster, "to-cluster", "", requiredSpec+toClusterSpec)
+	flags.StringVarP(&toCluster, "to-cluster", "t", "", requiredSpec+toClusterSpec)
 	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
 
 	servicesCopyCmd.MarkFlagRequired("cluster")
