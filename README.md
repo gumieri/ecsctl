@@ -30,3 +30,33 @@ It is organized by subcommands / categories:
   edit        Edit a Task Definition
   run         Run a Task Definition
 ```
+
+## Roadmap
+
+clusters
+  - [x] create
+  - [x] add-instance
+  - [x] add-spot-fleet
+  - [ ] delete
+
+services
+  - [x] copy
+  - [ ] deploy
+  - [ ] create
+
+task-definitions
+  - [x] edit
+  - [ ] deregister
+  - [ ] env
+    - [ ] list
+    - [ ] set
+    - [ ] delete
+
+scheduled-tasks
+  - [ ] create
+  - [ ] update
+
+repositories
+  - [ ] create
+  - [ ] edit
+  - [ ] delete
