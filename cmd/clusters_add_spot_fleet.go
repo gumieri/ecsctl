@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -148,7 +149,16 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	var LaunchSpecifications []*ec2.SpotFleetLaunchSpecification
-	for _, instanceType := range strings.Split(instanceTypes, ",") {
+	for _, instanceTypeAndWeight := range strings.Split(instanceTypes, ",") {
+		iTWSlice := strings.Split(instanceTypeAndWeight, ":")
+		instanceType := iTWSlice[0]
+
+		var weight float64
+		if len(iTWSlice) > 1 {
+			weight, err = strconv.ParseFloat(iTWSlice[1], 64)
+			must(err)
+		}
+
 		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{
 			IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Name: instanceRoleResponse.Role.RoleName},
 			EbsOptimized:       aws.Bool(ebs),
@@ -157,6 +167,10 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 			SecurityGroups:     SecurityGroups,
 			SubnetId:           aws.String(strings.Join(subnetsIds, ",")),
 			UserData:           aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
+		}
+
+		if weight > 1 {
+			SpotFleetLaunchSpecification.WeightedCapacity = aws.Float64(weight)
 		}
 
 		if kernelID != "" {
@@ -186,7 +200,6 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	SpotFleetRequestConfig := ec2.SpotFleetRequestConfigData{
 		IamFleetRole:         spotFleetRoleResponse.Role.Arn,
 		LaunchSpecifications: LaunchSpecifications,
-		SpotPrice:            aws.String(spotPrice),
 		TargetCapacity:       aws.Int64(targetCapacity),
 	}
 
