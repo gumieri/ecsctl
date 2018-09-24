@@ -190,6 +190,10 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		TargetCapacity:       aws.Int64(targetCapacity),
 	}
 
+	if spotPrice != "" {
+		SpotFleetRequestConfig.SpotPrice = aws.String(spotPrice)
+	}
+
 	if allocationStrategy != "" {
 		SpotFleetRequestConfig.AllocationStrategy = aws.String(allocationStrategy)
 	}
