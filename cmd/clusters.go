@@ -164,7 +164,7 @@ func clustersRun(cmd *cobra.Command, args []string) {
 
 var clustersCmd = &cobra.Command{
 	Use:     "clusters [command]",
-	Short:   "commands to manage clusters",
+	Short:   "Commands to manage clusters",
 	Aliases: []string{"cluster", "c"},
 	Run:     clustersRun,
 }

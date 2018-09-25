@@ -10,7 +10,7 @@ func taskDefinitionsRun(cmd *cobra.Command, args []string) {
 
 var taskDefinitionsCmd = &cobra.Command{
 	Use:     "task-definitions [command]",
-	Short:   "commands to manage Task Definitions",
+	Short:   "Commands to manage Task Definitions",
 	Aliases: []string{"task-definition", "tasks", "task", "t"},
 	Run:     taskDefinitionsRun,
 }
