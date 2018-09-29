@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/iam"
 	typistPkg "github.com/gumieri/typist"
@@ -18,6 +19,7 @@ import (
 )
 
 var ecsI *ecs.ECS
+var ecrI *ecr.ECR
 var ec2I *ec2.EC2
 var iamI *iam.IAM
 var cwlI *cloudwatchlogs.CloudWatchLogs
@@ -40,6 +42,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	awsSession = session.New(&awsConfig)
 
 	ecsI = ecs.New(awsSession)
+	ecrI = ecr.New(awsSession)
 	ec2I = ec2.New(awsSession)
 	iamI = iam.New(awsSession)
 	cwlI = cloudwatchlogs.New(awsSession)
