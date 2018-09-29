@@ -9,7 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	oie "github.com/gumieri/open-in-editor"
+	oie "github.com/gumieri/cli/open-in-editor"
 	"github.com/spf13/cobra"
 )
 

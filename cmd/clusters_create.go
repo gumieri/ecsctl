@@ -23,10 +23,11 @@ func clustersCreateRun(cmd *cobra.Command, clusters []string) {
 }
 
 var clustersCreateCmd = &cobra.Command{
-	Use:   "create [clusters...]",
-	Short: "Create empty clusters",
-	Args:  cobra.MinimumNArgs(1),
-	Run:   clustersCreateRun,
+	Use: "create [clusters...]",
+	Short: `Create empty clusters.
+If you do not specify a name for your cluster, you create a cluster named default.
+Up to 255 letters (uppercase and lowercase), numbers, hyphens, and underscores are allowed.`,
+	Run: clustersCreateRun,
 }
 
 func init() {

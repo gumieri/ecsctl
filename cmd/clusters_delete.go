@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/gumieri/cli/confirm"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ func clustersDeleteRun(cmd *cobra.Command, clusters []string) {
 	must(err)
 
 	failures := clustersDescription.Failures
-	if len(failures) > 0 && !force {
+	if !force && len(failures) > 0 {
 		fmt.Println("Some clusters were not found:")
 		for _, notFound := range failures {
 			fmt.Println(aws.StringValue(notFound.Arn))
@@ -25,23 +26,36 @@ func clustersDeleteRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	foundClusters := clustersDescription.Clusters
-	if len(foundClusters) > 0 && !yes {
-		fmt.Println("Do you want to delete the clusters:")
-		for _, foundCluster := range foundClusters {
-			fmt.Println(aws.StringValue(foundCluster.ClusterArn))
+	var activeClusters []*ecs.Cluster
+	for _, cluster := range foundClusters {
+		if aws.StringValue(cluster.Status) == "ACTIVE" {
+			activeClusters = append(activeClusters, cluster)
 		}
 	}
 
-	// for _, cluster := range clusters {
-	// 	_, err := ecsI.DeleteCluster(&ecs.DeleteClusterInput{
-	// 		Cluster: aws.String(cluster),
-	// 	})
+	if !force && !yes && len(activeClusters) > 0 {
+		fmt.Println("clusters to be deleted:")
+		for _, cluster := range activeClusters {
+			fmt.Println(aws.StringValue(cluster.ClusterArn))
+		}
 
-	// 	if err != nil {
-	// 		fmt.Println(err.Error())
-	// 		os.Exit(1)
-	// 	}
-	// }
+		if !confirm.Confirm("Do you really want to delete these clusters?") {
+			return
+		}
+	}
+
+	for _, cluster := range activeClusters {
+		_, err := ecsI.DeleteCluster(&ecs.DeleteClusterInput{
+			Cluster: cluster.ClusterArn,
+		})
+
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		fmt.Printf("%s deleted\n", aws.StringValue(cluster.ClusterArn))
+	}
 }
 
 var clustersDeleteCmd = &cobra.Command{
