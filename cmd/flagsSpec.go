@@ -11,6 +11,12 @@ var followSpec = `keep process logging from CloudWatch Logs`
 var image string
 var imageSpec = `AWS ECR image`
 
+var yes bool
+var yesSpec = `Answer yes`
+
+var force bool
+var forceSpec = `Force the command despite the errors`
+
 var editorCommand string
 var editorCommandSpec = `Override default text editor`
 
