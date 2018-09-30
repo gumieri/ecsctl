@@ -35,17 +35,21 @@ It is organized by subcommands / categories:
 
 clusters
   - [x] create
+  - [x] delete
   - [x] add-instance
   - [x] add-spot-fleet
-  - [x] delete
 
 services
+  - [ ] create
+  - [ ] edit
+  - [ ] delete
   - [x] copy
   - [ ] deploy
-  - [ ] create
 
 task-definitions
+  - [ ] create
   - [x] edit
+  - [ ] delete
   - [ ] deregister
   - [ ] env
     - [ ] list
@@ -54,6 +58,8 @@ task-definitions
 
 scheduled-tasks
   - [ ] create
+  - [ ] edit
+  - [ ] delete
   - [ ] update
 
 repositories
