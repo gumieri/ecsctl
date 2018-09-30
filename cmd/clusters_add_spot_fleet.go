@@ -134,7 +134,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	var SecurityGroups []*ec2.GroupIdentifier
 	for _, securityGroup := range securityGroups {
 		sg, err := findSecurityGroup(securityGroup)
-		must(err)
+		typist.Must(err)
 
 		SecurityGroups = append(SecurityGroups, &ec2.GroupIdentifier{
 			GroupId: sg.GroupId,
@@ -144,7 +144,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	var subnetsIds []string
 	for _, subnet := range subnets {
 		Subnet, err := findSubnet(subnet)
-		must(err)
+		typist.Must(err)
 		subnetsIds = append(subnetsIds, aws.StringValue(Subnet.SubnetId))
 	}
 
@@ -156,7 +156,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		var weight float64
 		if len(iTWSlice) > 1 {
 			weight, err = strconv.ParseFloat(iTWSlice[1], 64)
-			must(err)
+			typist.Must(err)
 		}
 
 		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{

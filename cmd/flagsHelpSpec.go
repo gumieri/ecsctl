@@ -17,6 +17,9 @@ var yesSpec = `Answer yes`
 var force bool
 var forceSpec = `Force the command despite the errors`
 
+var quiet bool
+var quietSpec = `Omit messages to the standard output`
+
 var editorCommand string
 var editorCommandSpec = `Override default text editor`
 

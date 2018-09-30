@@ -26,19 +26,19 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 			aws.String(clusters[0]),
 		},
 	})
-	must(err)
+	typist.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		must(errors.New("Cluster informed not found"))
+		typist.Must(errors.New("Cluster informed not found"))
 	}
 
 	c := clustersDescription.Clusters[0]
 
 	tmpl, err := template.New("UserData").Parse(ec2InstanceUserData)
-	must(err)
+	typist.Must(err)
 
 	userDataF := new(bytes.Buffer)
-	must(tmpl.Execute(userDataF, templateUserData{Cluster: *c.ClusterName}))
+	typist.Must(tmpl.Execute(userDataF, templateUserData{Cluster: *c.ClusterName}))
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -46,7 +46,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	latestImage, err := latestAmiEcsOptimized()
-	must(err)
+	typist.Must(err)
 
 	// TODO: automaticaly --create-roles if does not exist
 	if instanceRole == "" {
@@ -56,10 +56,10 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	instanceRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
 		RoleName: aws.String(instanceRole),
 	})
-	must(err)
+	typist.Must(err)
 
 	subnetDescription, err := findSubnet(subnet)
-	must(err)
+	typist.Must(err)
 
 	// TODO: AWS Tags
 	RunInstancesInput := ec2.RunInstancesInput{
@@ -91,7 +91,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	var sgs []*string
 	for _, securityGroup := range securityGroups {
 		sg, err := findSecurityGroup(securityGroup)
-		must(err)
+		typist.Must(err)
 		sgs = append(sgs, sg.GroupId)
 	}
 	RunInstancesInput.SecurityGroupIds = sgs
@@ -109,7 +109,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	_, err = ec2I.RunInstances(&RunInstancesInput)
-	must(err)
+	typist.Must(err)
 }
 
 var clustersAddInstanceCmd = &cobra.Command{

@@ -9,7 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	oie "github.com/gumieri/cli/open-in-editor"
+	oie "github.com/gumieri/open-in-editor"
 	"github.com/spf13/cobra"
 )
 
@@ -21,13 +21,13 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	}
 
 	if editorCommand == "" {
-		must(errors.New("no editor defined"))
+		typist.Must(errors.New("no editor defined"))
 	}
 
 	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: aws.String(taskDefinition),
 	})
-	must(err)
+	typist.Must(err)
 
 	td := tdDescription.TaskDefinition
 
@@ -45,22 +45,22 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	}
 
 	jsonTdDescription, err := json.MarshalIndent(newTD, "", "  ")
-	must(err)
+	typist.Must(err)
 
 	editor := oie.Editor{Command: editorCommand}
-	must(editor.OpenTempFile(&oie.File{
+	typist.Must(editor.OpenTempFile(&oie.File{
 		FileName: taskDefinition + ".json",
 		Content:  jsonTdDescription,
 	}))
 
 	file, err := editor.LastFile()
-	must(err)
+	typist.Must(err)
 
 	var editedTD *ecs.RegisterTaskDefinitionInput
-	must(json.Unmarshal(file.Content, &editedTD))
+	typist.Must(json.Unmarshal(file.Content, &editedTD))
 
 	newTDDescription, err := ecsI.RegisterTaskDefinition(editedTD)
-	must(err)
+	typist.Must(err)
 
 	newFamilyRevision := aws.StringValue(newTDDescription.TaskDefinition.Family) + ":" + strconv.FormatInt(aws.Int64Value(newTDDescription.TaskDefinition.Revision), 10)
 
@@ -70,7 +70,7 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	_, err = ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{
 		TaskDefinition: aws.String(oldFamilyRevision),
 	})
-	must(err)
+	typist.Must(err)
 }
 
 var taskDefinitionsEditCmd = &cobra.Command{

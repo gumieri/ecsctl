@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/iam"
+	typistPkg "github.com/gumieri/typist"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -21,18 +22,11 @@ var ec2I *ec2.EC2
 var iamI *iam.IAM
 var cwlI *cloudwatchlogs.CloudWatchLogs
 
+var typist *typistPkg.Typist
+
 var awsSession *session.Session
 
-func must(err error) {
-	if err == nil {
-		return
-	}
-
-	fmt.Println(err.Error())
-	os.Exit(1)
-}
-
-func instanceAWSObjects(cmd *cobra.Command, args []string) {
+func persistentPreRun(cmd *cobra.Command, args []string) {
 	awsConfig := aws.Config{}
 
 	if region != "" {
@@ -49,12 +43,18 @@ func instanceAWSObjects(cmd *cobra.Command, args []string) {
 	ec2I = ec2.New(awsSession)
 	iamI = iam.New(awsSession)
 	cwlI = cloudwatchlogs.New(awsSession)
+
+	typist = &typistPkg.Typist{
+		Quiet: quiet,
+		In:    os.Stdin,
+		Out:   os.Stdout,
+	}
 }
 
 var rootCmd = &cobra.Command{
 	Use:              "ecsctl",
 	Short:            "Collection of extra functions for AWS ECS",
-	PersistentPreRun: instanceAWSObjects,
+	PersistentPreRun: persistentPreRun,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -76,6 +76,9 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&region, "region", "", regionSpec)
 	viper.BindPFlag("region", rootCmd.PersistentFlags().Lookup("region"))
+
+	rootCmd.PersistentFlags().BoolVar(&quiet, "quiet", false, quietSpec)
+	viper.BindPFlag("quiet", rootCmd.PersistentFlags().Lookup("quiet"))
 }
 
 func initConfig() {
