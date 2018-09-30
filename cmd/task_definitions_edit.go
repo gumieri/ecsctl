@@ -56,6 +56,10 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	file, err := editor.LastFile()
 	typist.Must(err)
 
+	if string(file.Content) == (string(jsonTdDescription) + "\n") {
+		return
+	}
+
 	var editedTD *ecs.RegisterTaskDefinitionInput
 	typist.Must(json.Unmarshal(file.Content, &editedTD))
 
