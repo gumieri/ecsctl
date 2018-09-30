@@ -8,6 +8,9 @@ var revisionSpec = `AWS ECS cluster`
 var follow bool
 var followSpec = `keep process logging from CloudWatch Logs`
 
+var exit bool
+var exitSpec = `Send signal to process exit when dettached. Use only with --follow (-f) option`
+
 var image string
 var imageSpec = `AWS ECR image`
 

@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/TylerBrock/colorjson"
@@ -88,6 +90,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 	taskResult, err := ecsI.RunTask(&ecs.RunTaskInput{
 		Cluster:        aws.String(cluster),
 		TaskDefinition: aws.String(taskDefinitionFamily + ":" + revision),
+		StartedBy:      aws.String("ecsctl"),
 	})
 	if err != nil {
 		fmt.Println(err.Error())
@@ -101,6 +104,22 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 
 	if !follow {
 		os.Exit(0)
+	}
+
+	if exit {
+		var gracefulStop = make(chan os.Signal)
+		signal.Notify(gracefulStop, syscall.SIGTERM)
+		signal.Notify(gracefulStop, syscall.SIGINT)
+		go func() {
+			<-gracefulStop
+
+			ecsI.StopTask(&ecs.StopTaskInput{
+				Cluster: aws.String(cluster),
+				Task:    taskResult.Tasks[0].TaskArn,
+			})
+
+			os.Exit(0)
+		}()
 	}
 
 	tSplited := strings.Split(aws.StringValue(taskResult.Tasks[0].TaskArn), "/")
@@ -200,6 +219,8 @@ func init() {
 	taskDefinitionsCmd.AddCommand(taskDefinitionsRunCmd)
 
 	flags := taskDefinitionsRunCmd.Flags()
+
+	flags.BoolVar(&exit, "exit", false, exitSpec)
 
 	flags.BoolVarP(&follow, "follow", "f", false, followSpec)
 
