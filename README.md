@@ -37,7 +37,7 @@ clusters
   - [x] create
   - [x] add-instance
   - [x] add-spot-fleet
-  - [ ] delete
+  - [x] delete
 
 services
   - [x] copy
@@ -57,6 +57,6 @@ scheduled-tasks
   - [ ] update
 
 repositories
-  - [ ] create
+  - [x] create
   - [ ] edit
-  - [ ] delete
+  - [x] delete
