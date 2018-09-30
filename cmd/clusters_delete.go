@@ -27,14 +27,11 @@ func clustersDeleteRun(cmd *cobra.Command, clusters []string) {
 		}
 	}
 
-	failures := clustersDescription.Failures
-	if !force && len(failures) > 0 {
-		for _, notFound := range failures {
-			missing = append(missing, aws.StringValue(notFound.Arn))
-		}
+	for _, notFound := range clustersDescription.Failures {
+		missing = append(missing, aws.StringValue(notFound.Arn))
 	}
 
-	if len(missing) > 0 {
+	if !force && len(missing) > 0 {
 		typist.Must(errors.New("Some clusters were not found:\n\t" + strings.Join(missing, "\n\t")))
 	}
 
