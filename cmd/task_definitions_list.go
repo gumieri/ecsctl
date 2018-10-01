@@ -39,7 +39,6 @@ func taskDefinitionsListRun(cmd *cobra.Command, args []string) {
 
 		nextToken = result.NextToken
 	}
-
 }
 
 var taskDefinitionsListCmd = &cobra.Command{

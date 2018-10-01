@@ -18,6 +18,7 @@ It is organized by subcommands / categories:
   add-spot-fleet Add a new Spot Fleet to informed cluster
   create         Create empty clusters. If not specified a name, create a cluster named default
   delete         Delete clusters
+  list           List clusters
 ```
 
 ### `repositories` commands
@@ -44,6 +45,7 @@ It is organized by subcommands / categories:
 clusters
   - [x] create
   - [x] delete
+  - [x] list
   - [x] add-instance
   - [x] add-spot-fleet
 
