@@ -36,7 +36,7 @@ var tag string
 var tagSpec = `AWS ECR image tag`
 
 var cfgFile string
-var cfgFileSpec = `config file (default is $HOME/.ecsctl.yaml)`
+var cfgFileSpec = `Configuration file path`
 
 var profile string
 var profileSpec = `AWS Profile`
@@ -44,11 +44,18 @@ var profileSpec = `AWS Profile`
 var region string
 var regionSpec = `AWS Region`
 
+var projectName string
+var projectNameSpec = `Project name`
+
 var cluster string
+var projectCluster string
 var clusterSpec = `AWS ECS cluster`
 
 var toCluster string
 var toClusterSpec = `AWS ECS cluster target where the copy will be created`
+
+var service string
+var serviceSpec = `AWS ECS service name`
 
 var spotPrice string
 var spotPriceSpec = `Maximum price to pay for the spot instances (default is On-Demand price)`
