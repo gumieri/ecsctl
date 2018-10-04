@@ -92,8 +92,8 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	typist.Must(err)
 
 	// TODO: automaticaly --create-roles if does not exist
-	instanceRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
-		RoleName: aws.String(instanceRole),
+	instanceProfileResponse, err := iamI.GetInstanceProfile(&iam.GetInstanceProfileInput{
+		InstanceProfileName: aws.String(instanceProfile),
 	})
 	typist.Must(err)
 
@@ -127,7 +127,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 
 		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{
 			IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
-				Arn: instanceRoleResponse.Role.Arn,
+				Arn: instanceProfileResponse.InstanceProfile.Arn,
 			},
 			EbsOptimized:   aws.Bool(ebs),
 			ImageId:        latestImage.ImageId,
@@ -203,7 +203,7 @@ func init() {
 	flags.StringSliceVarP(&instanceTypes, "instance-type", "i", []string{}, requiredSpec+instanceTypesSpec)
 	flags.StringSliceVarP(&securityGroups, "security-group", "g", []string{}, requiredSpec+securityGroupsSpec)
 	flags.Int64VarP(&targetCapacity, "target-capacity", "c", 1, targetCapacitySpec)
-	flags.StringVar(&instanceRole, "instance-role", "ecsInstanceRole", instanceRoleSpec)
+	flags.StringVar(&instanceProfile, "instance-profile", "ecsInstanceRole", instanceProfileSpec)
 	flags.StringVar(&spotFleetRole, "spot-fleet-role", "ecsSpotFleetRole", spotFleetRoleSpec)
 	flags.StringVarP(&allocationStrategy, "allocation-strategy", "s", "", allocationStrategySpec)
 	flags.StringVar(&spotPrice, "spot-price", "", spotPriceSpec)
