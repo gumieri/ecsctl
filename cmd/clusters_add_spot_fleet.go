@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"html/template"
-	"os"
 	"strconv"
 	"strings"
 
@@ -67,69 +65,37 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 			aws.String(clusters[0]),
 		},
 	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	typist.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		fmt.Println(errors.New("Cluster informed not found"))
-		os.Exit(1)
+		typist.Must(errors.New("Cluster informed not found"))
 	}
 
 	c := clustersDescription.Clusters[0]
 
 	tmpl, err := template.New("UserData").Parse(spotFleetUserData)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	typist.Must(err)
 
 	userDataF := new(bytes.Buffer)
-	err = tmpl.Execute(userDataF, templateUserData{
+	typist.Must(tmpl.Execute(userDataF, templateUserData{
 		Cluster: *c.ClusterName,
 		Region:  aws.StringValue(awsSession.Config.Region),
-	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	}))
 
 	latestImage, err := latestAmiEcsOptimized()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	typist.Must(err)
 
 	// TODO: automaticaly --create-roles if does not exist
-	if spotFleetRole == "" {
-		spotFleetRole = "ecsSpotFleetRole"
-	}
-
 	spotFleetRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
 		RoleName: aws.String(spotFleetRole),
 	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	typist.Must(err)
 
 	// TODO: automaticaly --create-roles if does not exist
-	if instanceRole == "" {
-		instanceRole = "ecsInstanceRole"
-	}
-
 	instanceRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
 		RoleName: aws.String(instanceRole),
 	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	typist.Must(err)
 
 	var SecurityGroups []*ec2.GroupIdentifier
 	for _, securityGroup := range securityGroups {
@@ -160,13 +126,15 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		}
 
 		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{
-			IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Name: instanceRoleResponse.Role.RoleName},
-			EbsOptimized:       aws.Bool(ebs),
-			ImageId:            latestImage.ImageId,
-			InstanceType:       aws.String(instanceType),
-			SecurityGroups:     SecurityGroups,
-			SubnetId:           aws.String(strings.Join(subnetsIds, ",")),
-			UserData:           aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
+			IamInstanceProfile: &ec2.IamInstanceProfileSpecification{
+				Arn: instanceRoleResponse.Role.Arn,
+			},
+			EbsOptimized:   aws.Bool(ebs),
+			ImageId:        latestImage.ImageId,
+			InstanceType:   aws.String(instanceType),
+			SecurityGroups: SecurityGroups,
+			SubnetId:       aws.String(strings.Join(subnetsIds, ",")),
+			UserData:       aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
 		}
 
 		if weight > 1 {
@@ -214,11 +182,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	_, err = ec2I.RequestSpotFleet(&ec2.RequestSpotFleetInput{
 		SpotFleetRequestConfig: &SpotFleetRequestConfig,
 	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	typist.Must(err)
 }
 
 var clustersAddSpotFleetCmd = &cobra.Command{
@@ -239,8 +203,8 @@ func init() {
 	flags.StringSliceVarP(&instanceTypes, "instance-type", "i", []string{}, requiredSpec+instanceTypesSpec)
 	flags.StringSliceVarP(&securityGroups, "security-group", "g", []string{}, requiredSpec+securityGroupsSpec)
 	flags.Int64VarP(&targetCapacity, "target-capacity", "c", 1, targetCapacitySpec)
-	flags.StringVar(&instanceRole, "instance-role", "", instanceRoleSpec)
-	flags.StringVar(&spotFleetRole, "spot-fleet-role", "", spotFleetRoleSpec)
+	flags.StringVar(&instanceRole, "instance-role", "ecsInstanceRole", instanceRoleSpec)
+	flags.StringVar(&spotFleetRole, "spot-fleet-role", "ecsSpotFleetRole", spotFleetRoleSpec)
 	flags.StringVarP(&allocationStrategy, "allocation-strategy", "s", "", allocationStrategySpec)
 	flags.StringVar(&spotPrice, "spot-price", "", spotPriceSpec)
 	flags.BoolVar(&monitoring, "monitoring", false, monitoringSpec)
@@ -250,7 +214,6 @@ func init() {
 	flags.StringSliceVarP(&tags, "tag", "t", []string{}, tagsSpec)
 
 	clustersAddSpotFleetCmd.MarkFlagRequired("subnets")
-	clustersAddSpotFleetCmd.MarkFlagRequired("target-capacity")
 	clustersAddSpotFleetCmd.MarkFlagRequired("instance-types")
 	clustersAddSpotFleetCmd.MarkFlagRequired("security-groups")
 }
