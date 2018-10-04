@@ -49,12 +49,12 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	typist.Must(err)
 
 	// TODO: automaticaly --create-roles if does not exist
-	if instanceRole == "" {
-		instanceRole = "ecsInstanceRole"
+	if instanceProfile == "" {
+		instanceProfile = "ecsInstanceRole"
 	}
 
-	instanceRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
-		RoleName: aws.String(instanceRole),
+	instanceProfileResponse, err := iamI.GetInstanceProfile(&iam.GetInstanceProfileInput{
+		InstanceProfileName: aws.String(instanceProfile),
 	})
 	typist.Must(err)
 
@@ -63,7 +63,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 
 	// TODO: AWS Tags
 	RunInstancesInput := ec2.RunInstancesInput{
-		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Name: instanceRoleResponse.Role.RoleName},
+		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Arn: instanceProfileResponse.InstanceProfile.Arn},
 		EbsOptimized:       aws.Bool(ebs),
 		ImageId:            latestImage.ImageId,
 		SubnetId:           subnetDescription.SubnetId,
@@ -128,6 +128,8 @@ func init() {
 	flags.StringVarP(&instanceType, "instance-type", "i", "", requiredSpec+instanceTypeSpec)
 	flags.StringVarP(&subnet, "subnet", "n", "", requiredSpec+subnetSpec)
 	flags.StringSliceVarP(&securityGroups, "security-groups", "g", []string{}, securityGroupsSpec)
+
+	flags.StringVar(&instanceProfile, "instance-profile", "ecsInstanceRole", instanceProfileSpec)
 
 	flags.StringVarP(&key, "key", "k", "", keySpec)
 	flags.StringSliceVarP(&tags, "tag", "t", []string{}, tagsSpec)

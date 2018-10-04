@@ -56,8 +56,8 @@ var spotPriceSpec = `Maximum price to pay for the spot instances (default is On-
 var spotFleetRole string
 var spotFleetRoleSpec = `IAM fleet role grants the Spot fleet permission launch and terminate instances on your behalf`
 
-var instanceRole string
-var instanceRoleSpec = `An instance profile is a container for an IAM role and enables you to pass role information to Amazon EC2 Instance when the instance starts`
+var instanceProfile string
+var instanceProfileSpec = `An instance profile is a container for an IAM role and enables you to pass role information to Amazon EC2 Instance when the instance starts`
 
 var targetCapacity int64
 var targetCapacitySpec = `The capacity amout defined for the cluster`
