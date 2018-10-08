@@ -118,13 +118,19 @@ func upgradeRun(cmd *cobra.Command, args []string) {
 	typist.Must(err)
 	defer response.Body.Close()
 
-	bar := pb.New(int(response.ContentLength)).SetUnits(pb.U_BYTES)
-	proxyBody := bar.NewProxyReader(response.Body)
+	var proxyBody io.ReadCloser
+	if quiet {
+		_, err = io.Copy(newFile, response.Body)
+		typist.Must(err)
+	} else {
+		bar := pb.New(int(response.ContentLength)).SetUnits(pb.U_BYTES)
+		proxyBody = bar.NewProxyReader(response.Body)
 
-	bar.Start()
-	_, err = io.Copy(newFile, proxyBody)
-	typist.Must(err)
-	bar.Finish()
+		bar.Start()
+		_, err = io.Copy(newFile, proxyBody)
+		typist.Must(err)
+		bar.Finish()
+	}
 
 	typist.Must(os.Rename(newFilePath, selfPath))
 }

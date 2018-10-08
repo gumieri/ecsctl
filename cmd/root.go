@@ -80,7 +80,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&region, "region", "", regionSpec)
 	viper.BindPFlag("region", rootCmd.PersistentFlags().Lookup("region"))
 
-	rootCmd.PersistentFlags().BoolVar(&quiet, "quiet", false, quietSpec)
+	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, quietSpec)
 	viper.BindPFlag("quiet", rootCmd.PersistentFlags().Lookup("quiet"))
 }
 
