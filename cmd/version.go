@@ -5,7 +5,7 @@ import (
 )
 
 // VERSION of the ecsctl
-var VERSION = "v0.3.8"
+var VERSION = "v0.3.9"
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
