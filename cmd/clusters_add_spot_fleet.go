@@ -82,8 +82,12 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		Region:  aws.StringValue(awsSession.Config.Region),
 	}))
 
-	latestImage, err := latestAmiEcsOptimized()
-	typist.Must(err)
+	if amiID != "" {
+		latestAMI, err := latestAmiEcsOptimized()
+		typist.Must(err)
+
+		amiID = aws.StringValue(latestAMI.ImageId)
+	}
 
 	// TODO: automaticaly --create-roles if does not exist
 	spotFleetRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
@@ -130,7 +134,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 				Arn: instanceProfileResponse.InstanceProfile.Arn,
 			},
 			EbsOptimized:   aws.Bool(ebs),
-			ImageId:        latestImage.ImageId,
+			ImageId:        aws.String(amiID),
 			InstanceType:   aws.String(instanceType),
 			SecurityGroups: SecurityGroups,
 			SubnetId:       aws.String(strings.Join(subnetsIds, ",")),
@@ -209,6 +213,7 @@ func init() {
 	flags.StringVar(&spotPrice, "spot-price", "", spotPriceSpec)
 	flags.BoolVar(&monitoring, "monitoring", false, monitoringSpec)
 	flags.StringVar(&kernelID, "kernel-id", "", kernelIDSpec)
+	flags.StringVar(&amiID, "ami-id", "", amiIDSpec)
 	flags.BoolVar(&ebs, "ebs", false, ebsSpec)
 	flags.StringVarP(&key, "key", "k", "", keySpec)
 	flags.StringSliceVarP(&tags, "tag", "t", []string{}, tagsSpec)

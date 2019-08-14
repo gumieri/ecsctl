@@ -79,6 +79,9 @@ E.g. --subnet subnet-123abcd -n subnet-456efgh -n lorem-ipsum`
 var kernelID string
 var kernelIDSpec = `The ID of the Kernel`
 
+var amiID string
+var amiIDSpec = `The ID of the AMI`
+
 var monitoring bool
 var monitoringSpec = `Enables monitoring for the instances`
 
