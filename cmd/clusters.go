@@ -31,7 +31,17 @@ func parseTags(tags []string) (parsed []*ec2.Tag) {
 	return
 }
 
-func latestAmiEcsOptimized() (latestImage ec2.Image, err error) {
+func latestAmiEcsOptimized(platform string) (latestImage ec2.Image, err error) {
+	var nameFilter string
+	switch platform {
+	case "windows", "windows-2019":
+		nameFilter = "Windows_Server-2019-English-Full-ECS_Optimized-??????????"
+	case "windows-2016":
+		nameFilter = "Windows_Server-2016-English-Full-ECS_Optimized-??????????"
+	default:
+		nameFilter = "amzn-ami-?????????-amazon-ecs-optimized"
+	}
+
 	result, err := ec2I.DescribeImages(&ec2.DescribeImagesInput{
 		Filters: []*ec2.Filter{
 			{
@@ -45,7 +55,7 @@ func latestAmiEcsOptimized() (latestImage ec2.Image, err error) {
 			},
 			{
 				Name:   aws.String("name"),
-				Values: []*string{aws.String("amzn-ami-?????????-amazon-ecs-optimized")},
+				Values: []*string{aws.String(nameFilter)},
 			},
 		},
 	})

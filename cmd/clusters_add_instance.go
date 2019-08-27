@@ -15,11 +15,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ec2InstanceUserData = `
-#!/bin/bash
-echo ECS_CLUSTER={{.Cluster}} >> /etc/ecs/ecs.config;echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;
-`
-
 func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
@@ -34,7 +29,15 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 
 	c := clustersDescription.Clusters[0]
 
-	tmpl, err := template.New("UserData").Parse(ec2InstanceUserData)
+	var userData string
+	switch platform {
+	case "windows", "windows-2016", "windows-2019":
+		userData = windowsUserData
+	default:
+		userData = linuxUserData
+	}
+
+	tmpl, err := template.New("UserData").Parse(userData)
 	typist.Must(err)
 
 	userDataF := new(bytes.Buffer)
@@ -45,8 +48,12 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 		os.Exit(1)
 	}
 
-	latestImage, err := latestAmiEcsOptimized()
-	typist.Must(err)
+	if amiID == "" {
+		latestAMI, err := latestAmiEcsOptimized(platform)
+		typist.Must(err)
+
+		amiID = aws.StringValue(latestAMI.ImageId)
+	}
 
 	// TODO: automaticaly --create-roles if does not exist
 	if instanceProfile == "" {
@@ -65,7 +72,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	RunInstancesInput := ec2.RunInstancesInput{
 		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Arn: instanceProfileResponse.InstanceProfile.Arn},
 		EbsOptimized:       aws.Bool(ebs),
-		ImageId:            latestImage.ImageId,
+		ImageId:            aws.String(amiID),
 		SubnetId:           subnetDescription.SubnetId,
 		InstanceType:       aws.String(instanceType),
 		UserData:           aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
@@ -130,12 +137,14 @@ func init() {
 	flags.StringSliceVarP(&securityGroups, "security-groups", "g", []string{}, securityGroupsSpec)
 
 	flags.StringVar(&instanceProfile, "instance-profile", "ecsInstanceRole", instanceProfileSpec)
+	flags.StringVar(&platform, "platform", "linux", platformSpec)
 
 	flags.StringVarP(&key, "key", "k", "", keySpec)
 	flags.StringSliceVarP(&tags, "tag", "t", []string{}, tagsSpec)
 	flags.Int64Var(&minimum, "min", 1, minimumSpec)
 	flags.Int64Var(&maximum, "max", 1, maximumSpec)
 	flags.StringVar(&credit, "credit", "", creditSpec)
+	flags.StringVar(&amiID, "ami-id", "", amiIDSpec)
 
 	clustersAddSpotFleetCmd.MarkFlagRequired("subnet")
 	clustersAddSpotFleetCmd.MarkFlagRequired("instance-type")

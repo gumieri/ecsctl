@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/TylerBrock/colorjson v0.0.0-20180527164720-95ec53f28296
-	github.com/aws/aws-sdk-go v1.19.15
+	github.com/aws/aws-sdk-go v1.23.9
 	github.com/fatih/color v1.7.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect

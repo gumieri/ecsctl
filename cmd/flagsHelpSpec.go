@@ -106,9 +106,7 @@ E.g. --instance-type m4.large:2 -i c4.large:2 -i t3.medium`
 
 var credit string
 var creditSpec = `The credit option for CPU usage of a T2 (default 'standard') or T3 (default 'unlimited') instance
-Valid values:
-'standard'
-'unlimited'`
+Valid values: 'standard', 'unlimited'`
 
 var minimum int64
 var minimumSpec = `The minimum number of instances to launch
@@ -121,3 +119,7 @@ If you specify more instances than Amazon EC2 can launch in the target Availabil
 var tags []string
 var tagsSpec = `Tag to Spot Fleet instances as 'key=value'. Can be passed multiple times
 E.g. --tag Name=sample -t Project=sample -t Lorem=Ipsum`
+
+var platform string
+var platformSpec = `The base operating system for the cluster
+Valid values: 'linux', 'windows', 'windows-2016', 'windows-2019'`
