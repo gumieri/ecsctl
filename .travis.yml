@@ -2,17 +2,17 @@ language: go
 go:
 - 1.x
 script:
-- GOOS=linux GOARCH=amd64 go build -o release/ecsctl-Linux-x86_64
-- GOOS=linux GOARCH=386 go build -o release/ecsctl-Linux-i386
-- GOOS=linux GOARCH=arm GOARM=5 go build -o release/ecsctl-Linux-armv5l
-- GOOS=linux GOARCH=arm GOARM=6 go build -o release/ecsctl-Linux-armv6l
-- GOOS=linux GOARCH=arm GOARM=7 go build -o release/ecsctl-Linux-armv7l
-- GOOS=linux GOARCH=arm64 go build -o release/ecsctl-Linux-armv8l
-- GOOS=darwin GOARCH=amd64 go build -o release/ecsctl-Darwin-x86_64
-- GOOS=darwin GOARCH=386 go build -o release/ecsctl-Darwin-i386
+- GOOS=linux   GOARCH=amd64       go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Linux-x86_64
+- GOOS=linux   GOARCH=386         go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Linux-i386
+- GOOS=linux   GOARCH=arm GOARM=5 go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Linux-armv5l
+- GOOS=linux   GOARCH=arm GOARM=6 go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Linux-armv6l
+- GOOS=linux   GOARCH=arm GOARM=7 go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Linux-armv7l
+- GOOS=linux   GOARCH=arm64       go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Linux-armv8l
+- GOOS=darwin  GOARCH=amd64       go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Darwin-x86_64
+- GOOS=darwin  GOARCH=386         go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Darwin-i386
 - go get -u github.com/inconshreveable/mousetrap
-- GOOS=windows GOARCH=amd64 go build -o release/ecsctl-Windows-x86_64.exe
-- GOOS=windows GOARCH=386 go build -o release/ecsctl-Windows-i386.exe
+- GOOS=windows GOARCH=amd64       go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Windows-x86_64.exe
+- GOOS=windows GOARCH=386         go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${TRAVIS_TAG}" -o release/ecsctl-Windows-i386.exe
 deploy:
   provider: releases
   api_key:
