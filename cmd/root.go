@@ -13,7 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/iam"
 	typistPkg "github.com/gumieri/typist"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -23,6 +22,7 @@ var ecrI *ecr.ECR
 var ec2I *ec2.EC2
 var iamI *iam.IAM
 var cwlI *cloudwatchlogs.CloudWatchLogs
+var projectPath string
 
 var typist *typistPkg.Typist
 
@@ -46,12 +46,6 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	ec2I = ec2.New(awsSession)
 	iamI = iam.New(awsSession)
 	cwlI = cloudwatchlogs.New(awsSession)
-
-	typist = &typistPkg.Typist{
-		Quiet: quiet,
-		In:    os.Stdin,
-		Out:   os.Stdout,
-	}
 }
 
 var rootCmd = &cobra.Command{
@@ -70,9 +64,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", cfgFileSpec)
+	viper.AutomaticEnv()
 
 	rootCmd.PersistentFlags().StringVar(&profile, "profile", "", profileSpec)
 	viper.BindPFlag("profile", rootCmd.PersistentFlags().Lookup("profile"))
@@ -82,23 +74,10 @@ func init() {
 
 	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, quietSpec)
 	viper.BindPFlag("quiet", rootCmd.PersistentFlags().Lookup("quiet"))
-}
 
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".ecsctl")
+	typist = &typistPkg.Typist{
+		Quiet: quiet,
+		In:    os.Stdin,
+		Out:   os.Stdout,
 	}
-
-	viper.AutomaticEnv()
-
-	viper.ReadInConfig()
 }
