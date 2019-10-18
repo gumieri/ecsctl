@@ -62,7 +62,9 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 		ecsI.CreateService(&ecs.CreateServiceInput{
 			Cluster:                       targetC.ClusterName,
 			DeploymentConfiguration:       s.DeploymentConfiguration,
+			DeploymentController:          s.DeploymentController,
 			DesiredCount:                  s.DesiredCount,
+			EnableECSManagedTags:          s.EnableECSManagedTags,
 			HealthCheckGracePeriodSeconds: s.HealthCheckGracePeriodSeconds,
 			LaunchType:                    s.LaunchType,
 			LoadBalancers:                 s.LoadBalancers,
@@ -70,10 +72,12 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 			PlacementConstraints:          s.PlacementConstraints,
 			PlacementStrategy:             s.PlacementStrategy,
 			PlatformVersion:               s.PlatformVersion,
+			PropagateTags:                 s.PropagateTags,
 			Role:                          s.RoleArn,
 			SchedulingStrategy:            s.SchedulingStrategy,
 			ServiceName:                   s.ServiceName,
 			ServiceRegistries:             s.ServiceRegistries,
+			Tags:                          s.Tags,
 			TaskDefinition:                s.TaskDefinition,
 		})
 	}
