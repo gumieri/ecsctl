@@ -29,7 +29,7 @@ It is organized by subcommands / categories:
 
 ### `services` commands
 ```
-	list        List services of specified cluster
+  list        List services of specified cluster
   copy        Copy a service to another cluster
   deploy      Deploy a service
 ```
