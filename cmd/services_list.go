@@ -47,7 +47,6 @@ func servicesListRun(cmd *cobra.Command, services []string) {
 var servicesListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List services of specified cluster",
-	Args:  cobra.MinimumNArgs(1),
 	Run:   servicesListRun,
 }
 
