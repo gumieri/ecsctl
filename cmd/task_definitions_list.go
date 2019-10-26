@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -10,7 +11,9 @@ import (
 )
 
 func taskDefinitionsListRun(cmd *cobra.Command, args []string) {
-	input := &ecs.ListTaskDefinitionFamiliesInput{}
+	input := &ecs.ListTaskDefinitionFamiliesInput{
+		Status: aws.String(strings.ToUpper(status)),
+	}
 
 	if len(args) > 0 {
 		input.FamilyPrefix = aws.String(args[0])
@@ -50,4 +53,8 @@ var taskDefinitionsListCmd = &cobra.Command{
 
 func init() {
 	taskDefinitionsCmd.AddCommand(taskDefinitionsListCmd)
+
+	flags := taskDefinitionsListCmd.Flags()
+
+	flags.StringVarP(&status, "status", "s", "active", statusSpec)
 }

@@ -120,3 +120,7 @@ E.g. --tag Name=sample -t Project=sample -t Lorem=Ipsum`
 var platform string
 var platformSpec = `The base operating system for the cluster
 Valid values: 'linux', 'windows', 'windows-2016', 'windows-2019'`
+
+var status string
+var statusSpec = `Task definition Status
+Valid values: 'all', 'active', 'inactive'`
