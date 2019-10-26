@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -56,7 +57,8 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	file, err := editor.LastFile()
 	typist.Must(err)
 
-	if string(file.Content) == (string(jsonTdDescription) + "\n") {
+	if strings.Trim(string(file.Content), "\n") == strings.Trim(string(jsonTdDescription), "\n") {
+		typist.Println(errors.New("nothing changed"))
 		return
 	}
 
