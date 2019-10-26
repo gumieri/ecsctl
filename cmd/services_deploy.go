@@ -93,9 +93,12 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 		Cpu:                     td.Cpu,
 		ExecutionRoleArn:        td.ExecutionRoleArn,
 		Family:                  td.Family,
+		IpcMode:                 td.IpcMode,
 		Memory:                  td.Memory,
 		NetworkMode:             td.NetworkMode,
+		PidMode:                 td.PidMode,
 		PlacementConstraints:    td.PlacementConstraints,
+		ProxyConfiguration:      td.ProxyConfiguration,
 		RequiresCompatibilities: td.RequiresCompatibilities,
 		TaskRoleArn:             td.TaskRoleArn,
 		Volumes:                 td.Volumes,
@@ -149,7 +152,6 @@ func init() {
 	flags.StringVarP(&tag, "tag", "t", "", tagSpec)
 	flags.StringVarP(&image, "image", "i", "", imageSpec)
 	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
-	flags.StringVarP(&repository, "repository", "r", "", repositorySpec)
 
 	servicesDeployCmd.MarkFlagRequired("cluster")
 

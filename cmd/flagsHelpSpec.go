@@ -29,9 +29,6 @@ var editorCommandSpec = `Override default text editor`
 var containerName string
 var containerNameSpec = `Container name from Task Definition`
 
-var repository string
-var repositorySpec = `AWS ECR repository name`
-
 var tag string
 var tagSpec = `AWS ECR image tag`
 
