@@ -39,8 +39,8 @@ func servicesListRun(cmd *cobra.Command, services []string) {
 
 		parsedARN, err := arn.Parse(aws.StringValue(serviceARN))
 		t.Must(err)
-
-		t.Outln(strings.TrimLeft(parsedARN.Resource, "service/"))
+		parsedResource := strings.Split(parsedARN.Resource, "/")
+		t.Outln(parsedResource[len(parsedResource)-1])
 	}
 }
 
