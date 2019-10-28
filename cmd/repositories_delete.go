@@ -19,10 +19,10 @@ func repositoriesDeleteRun(cmd *cobra.Command, repositories []string) {
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			if aerr.Code() != ecr.ErrCodeRepositoryNotFoundException {
-				typist.Must(err)
+				t.Must(err)
 			}
 		} else {
-			typist.Must(err)
+			t.Must(err)
 		}
 	}
 
@@ -45,16 +45,16 @@ func repositoriesDeleteRun(cmd *cobra.Command, repositories []string) {
 	}
 
 	if !force && len(missing) > 0 {
-		typist.Must(errors.New("Some repositories were not found:\n\t" + strings.Join(missing, "\n\t")))
+		t.Must(errors.New("Some repositories were not found:\n\t" + strings.Join(missing, "\n\t")))
 	}
 
 	if !force && !yes && len(foundRepositories) > 0 {
-		typist.Println("repositories to be deleted:")
+		t.Infoln("repositories to be deleted:")
 		for _, repository := range foundRepositories {
-			typist.Println(aws.StringValue(repository.RepositoryArn))
+			t.Infoln(aws.StringValue(repository.RepositoryArn))
 		}
 
-		if !typist.Confirm("Do you really want to delete these repositories?") {
+		if !t.Confirm("Do you really want to delete these repositories?") {
 			return
 		}
 	}
@@ -64,9 +64,9 @@ func repositoriesDeleteRun(cmd *cobra.Command, repositories []string) {
 			RepositoryName: repository.RepositoryName,
 		})
 
-		typist.Must(err)
+		t.Must(err)
 
-		typist.Printf("%s deleted\n", aws.StringValue(repository.RepositoryArn))
+		t.Infof("%s deleted\n", aws.StringValue(repository.RepositoryArn))
 	}
 }
 

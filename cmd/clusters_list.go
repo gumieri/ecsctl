@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/spf13/cobra"
@@ -19,14 +16,10 @@ func clustersListRun(cmd *cobra.Command, clusters []string) {
 		}
 
 		result, err := ecsI.ListClusters(input)
-
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		t.Must(err)
 
 		for _, f := range result.ClusterArns {
-			fmt.Println(aws.StringValue(f))
+			t.Outln(aws.StringValue(f))
 		}
 
 		if result.NextToken == nil {

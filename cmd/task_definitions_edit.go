@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -22,13 +21,13 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	}
 
 	if editorCommand == "" {
-		typist.Must(errors.New("no editor defined"))
+		t.Must(errors.New("no editor defined"))
 	}
 
 	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: aws.String(taskDefinition),
 	})
-	typist.Must(err)
+	t.Must(err)
 
 	td := tdDescription.TaskDefinition
 
@@ -46,37 +45,37 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 	}
 
 	jsonTdDescription, err := json.MarshalIndent(newTD, "", "  ")
-	typist.Must(err)
+	t.Must(err)
 
 	editor := oie.Editor{Command: editorCommand}
-	typist.Must(editor.OpenTempFile(&oie.File{
+	t.Must(editor.OpenTempFile(&oie.File{
 		FileName: taskDefinition + ".json",
 		Content:  jsonTdDescription,
 	}))
 
 	file, err := editor.LastFile()
-	typist.Must(err)
+	t.Must(err)
 
 	if strings.Trim(string(file.Content), "\n") == strings.Trim(string(jsonTdDescription), "\n") {
-		typist.Println(errors.New("nothing changed"))
+		t.Errorln("nothing changed")
 		return
 	}
 
 	var editedTD *ecs.RegisterTaskDefinitionInput
-	typist.Must(json.Unmarshal(file.Content, &editedTD))
+	t.Must(json.Unmarshal(file.Content, &editedTD))
 
 	newTDDescription, err := ecsI.RegisterTaskDefinition(editedTD)
-	typist.Must(err)
+	t.Must(err)
 
 	newFamilyRevision := aws.StringValue(newTDDescription.TaskDefinition.Family) + ":" + strconv.FormatInt(aws.Int64Value(newTDDescription.TaskDefinition.Revision), 10)
 
-	fmt.Println(newFamilyRevision)
+	t.Outln(newFamilyRevision)
 
 	oldFamilyRevision := aws.StringValue(td.Family) + ":" + strconv.FormatInt(aws.Int64Value(td.Revision), 10)
-	_, err = ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{
+
+	t.Must(ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{
 		TaskDefinition: aws.String(oldFamilyRevision),
-	})
-	typist.Must(err)
+	}))
 }
 
 var taskDefinitionsEditCmd = &cobra.Command{

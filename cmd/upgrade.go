@@ -68,71 +68,71 @@ func uname() (uname string, err error) {
 
 func upgradeRun(cmd *cobra.Command, args []string) {
 	available, err := getVersionsFromGithub()
-	typist.Must(err)
+	t.Must(err)
 	latest := available[len(available)-1]
 
 	current, err := version.NewVersion(VERSION)
-	typist.Must(err)
+	t.Must(err)
 
 	if !current.LessThan(latest) {
-		typist.Println("You are using the latest version")
+		t.Infoln("You are using the latest version")
 		return
 	}
 
-	typist.Printf("There's a new version available. (current: %s - available: %s)\n", current, latest)
-	if !yes && !typist.Confirm("Do you want to upgrade?") {
+	t.Infof("There's a new version available. (current: %s - available: %s)\n", current, latest)
+	if !yes && !t.Confirm("Do you want to upgrade?") {
 		return
 	}
 
 	selfPath, err := os.Executable()
-	typist.Must(err)
+	t.Must(err)
 
 	selfDir := filepath.Dir(selfPath)
 
 	actualFile, err := os.Open(selfPath)
-	typist.Must(err)
+	t.Must(err)
 
 	fileStat, err := actualFile.Stat()
-	typist.Must(err)
+	t.Must(err)
 
 	newFileName := "temp_" + filepath.Base(selfPath)
 	newFilePath := filepath.Join(selfDir, newFileName)
 	newFile, err := os.Create(newFilePath)
-	typist.Must(err)
+	t.Must(err)
 	defer os.Remove(newFilePath)
 	newFile.Chmod(fileStat.Mode())
 
 	u, err := uname()
-	typist.Must(err)
+	t.Must(err)
 
 	url := "https://github.com/gumieri/ecsctl/releases/download/v" + latest.String() + "/" + u
 
 	request, err := http.NewRequest("GET", url, nil)
-	typist.Must(err)
+	t.Must(err)
 
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if response.StatusCode != 200 {
 		err = fmt.Errorf("failed to download binary from GitHub. HTTP Status: %d", response.StatusCode)
 	}
-	typist.Must(err)
+	t.Must(err)
 	defer response.Body.Close()
 
 	var proxyBody io.ReadCloser
 	if quiet {
 		_, err = io.Copy(newFile, response.Body)
-		typist.Must(err)
+		t.Must(err)
 	} else {
 		bar := pb.New(int(response.ContentLength)).SetUnits(pb.U_BYTES)
 		proxyBody = bar.NewProxyReader(response.Body)
 
 		bar.Start()
 		_, err = io.Copy(newFile, proxyBody)
-		typist.Must(err)
+		t.Must(err)
 		bar.Finish()
 	}
 
-	typist.Must(os.Rename(newFilePath, selfPath))
+	t.Must(os.Rename(newFilePath, selfPath))
 }
 
 var upgradeCmd = &cobra.Command{

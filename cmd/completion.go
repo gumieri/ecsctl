@@ -14,7 +14,7 @@ func completionRun(cmd *cobra.Command, args []string) {
 	case "zsh":
 		rootCmd.GenZshCompletion(os.Stdout)
 	default:
-		typist.Must(errors.New("specied shell is not yet supported"))
+		t.Must(errors.New("specied shell is not yet supported"))
 	}
 }
 

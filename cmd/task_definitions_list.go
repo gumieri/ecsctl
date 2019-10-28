@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,14 +24,10 @@ func taskDefinitionsListRun(cmd *cobra.Command, args []string) {
 		}
 
 		result, err := ecsI.ListTaskDefinitionFamilies(input)
-
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		t.Must(err)
 
 		for _, f := range result.Families {
-			fmt.Println(aws.StringValue(f))
+			t.Outln(aws.StringValue(f))
 		}
 
 		if result.NextToken == nil {

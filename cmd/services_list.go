@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
-	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -18,14 +17,10 @@ func servicesListRun(cmd *cobra.Command, services []string) {
 		},
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		fmt.Println(errors.New("Source Cluster informed not found"))
-		os.Exit(1)
+		t.Exitf("Source Cluster informed not found")
 	}
 
 	c := clustersDescription.Clusters[0]
@@ -34,13 +29,18 @@ func servicesListRun(cmd *cobra.Command, services []string) {
 		Cluster: c.ClusterName,
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
-	for _, service := range servicesList.ServiceArns {
-		fmt.Println(aws.StringValue(service))
+	for _, serviceARN := range servicesList.ServiceArns {
+		if listARN {
+			t.Outln(aws.StringValue(serviceARN))
+			continue
+		}
+
+		parsedARN, err := arn.Parse(aws.StringValue(serviceARN))
+		t.Must(err)
+
+		t.Outln(strings.TrimLeft(parsedARN.Resource, "service/"))
 	}
 }
 
@@ -56,6 +56,7 @@ func init() {
 	flags := servicesListCmd.Flags()
 
 	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+	flags.BoolVar(&listARN, "arn", false, listARNSpec)
 
 	servicesCopyCmd.MarkFlagRequired("cluster")
 

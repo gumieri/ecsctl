@@ -14,7 +14,5 @@ func init() {
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number of ecsctl",
-	Run: func(cmd *cobra.Command, args []string) {
-		typist.Println(VERSION)
-	},
+	Run:   func(cmd *cobra.Command, args []string) { t.Outln(VERSION) },
 }

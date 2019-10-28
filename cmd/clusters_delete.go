@@ -13,7 +13,7 @@ func clustersDeleteRun(cmd *cobra.Command, clusters []string) {
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: aws.StringSlice(clusters),
 	})
-	typist.Must(err)
+	t.Must(err)
 
 	var missing []string
 	var activeClusters []*ecs.Cluster
@@ -32,16 +32,16 @@ func clustersDeleteRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	if !force && len(missing) > 0 {
-		typist.Must(errors.New("Some clusters were not found:\n\t" + strings.Join(missing, "\n\t")))
+		t.Must(errors.New("Some clusters were not found:\n\t" + strings.Join(missing, "\n\t")))
 	}
 
 	if !force && !yes && len(activeClusters) > 0 {
-		typist.Println("clusters to be deleted:")
+		t.Infoln("clusters to be deleted:")
 		for _, cluster := range activeClusters {
-			typist.Println(aws.StringValue(cluster.ClusterArn))
+			t.Infoln(aws.StringValue(cluster.ClusterArn))
 		}
 
-		if !typist.Confirm("Do you really want to delete these clusters?") {
+		if !t.Confirm("Do you really want to delete these clusters?") {
 			return
 		}
 	}
@@ -51,9 +51,9 @@ func clustersDeleteRun(cmd *cobra.Command, clusters []string) {
 			Cluster: cluster.ClusterArn,
 		})
 
-		typist.Must(err)
+		t.Must(err)
 
-		typist.Printf("%s deleted\n", aws.StringValue(cluster.ClusterArn))
+		t.Infof("%s deleted\n", aws.StringValue(cluster.ClusterArn))
 	}
 }
 

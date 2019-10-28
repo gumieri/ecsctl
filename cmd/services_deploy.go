@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
@@ -22,14 +19,10 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 		},
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		fmt.Println(errors.New("Cluster informed not found"))
-		os.Exit(1)
+		t.Exitf("Cluster informed not found")
 	}
 
 	c := clustersDescription.Clusters[0]
@@ -41,14 +34,10 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 		},
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
 	if len(servicesDescription.Services) == 0 {
-		fmt.Println(errors.New("Service informed not found"))
-		os.Exit(1)
+		t.Exitf("Service informed not found")
 	}
 
 	s := servicesDescription.Services[0]
@@ -57,10 +46,7 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 		TaskDefinition: s.TaskDefinition,
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
 	td := tdDescription.TaskDefinition
 
@@ -78,8 +64,7 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 	}
 
 	if cdToUpdate == nil {
-		fmt.Println(fmt.Errorf("No container on the Task Family %s", aws.StringValue(td.Family)))
-		os.Exit(1)
+		t.Exitf("No container on the Task Family %s", aws.StringValue(td.Family))
 	}
 
 	if tag != "" {
@@ -104,35 +89,22 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 		Volumes:                 td.Volumes,
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
 	newTD := newTDDescription.TaskDefinition
 	oldFamilyRevision := aws.StringValue(td.Family) + ":" + strconv.FormatInt(aws.Int64Value(td.Revision), 10)
 
-	_, err = ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{
+	t.Must(ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{
 		TaskDefinition: aws.String(oldFamilyRevision),
-	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	}))
 
 	newFamilyRevision := aws.StringValue(newTD.Family) + ":" + strconv.FormatInt(aws.Int64Value(newTD.Revision), 10)
 
-	_, err = ecsI.UpdateService(&ecs.UpdateServiceInput{
+	t.Must(ecsI.UpdateService(&ecs.UpdateServiceInput{
 		Cluster:        c.ClusterName,
 		Service:        aws.String(service),
 		TaskDefinition: aws.String(newFamilyRevision),
-	})
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	}))
 }
 
 var servicesDeployCmd = &cobra.Command{

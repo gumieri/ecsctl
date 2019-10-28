@@ -28,6 +28,16 @@ github.com/gumieri/open-in-editor v0.0.0-20180920123653-4f3f3f35875d h1:42xaV8TG
 github.com/gumieri/open-in-editor v0.0.0-20180920123653-4f3f3f35875d/go.mod h1:M6QsfYt1dWnHsNLOijYWHLtcW7h+XG5nYTnqmSA8FaQ=
 github.com/gumieri/typist v0.0.0-20181015014244-f2639d942910 h1:asYIw//YJb2ZliknYq2KvJfjRSHeiIK/PBFFL+IXDJo=
 github.com/gumieri/typist v0.0.0-20181015014244-f2639d942910/go.mod h1:WcfG796Sv8a7K6ZbIxDIpHOll5cLUzGWx0l/Mlcg9cQ=
+github.com/gumieri/typist v0.1.0 h1:ip4B0+bf3cFDXmvZqrXjPksaAJ1ZCzfabtY3Hrk7DVo=
+github.com/gumieri/typist v0.1.0/go.mod h1:WcfG796Sv8a7K6ZbIxDIpHOll5cLUzGWx0l/Mlcg9cQ=
+github.com/gumieri/typist v1.0.0 h1:xXI4DS2edAtrbc92j3HiLJvDdCAeH3tRnGRe/6/zMJ4=
+github.com/gumieri/typist v1.0.0/go.mod h1:WcfG796Sv8a7K6ZbIxDIpHOll5cLUzGWx0l/Mlcg9cQ=
+github.com/gumieri/typist v1.0.1 h1:zUdJV2cnivdzgGJd6nYa9NIIZVoRXXH4UrItMcZ9E+o=
+github.com/gumieri/typist v1.0.1/go.mod h1:WcfG796Sv8a7K6ZbIxDIpHOll5cLUzGWx0l/Mlcg9cQ=
+github.com/gumieri/typist v1.0.2 h1:l18491/IksZuzBSVGzHSR7d7Pus8d+rhb5zvUipLyg8=
+github.com/gumieri/typist v1.0.2/go.mod h1:WcfG796Sv8a7K6ZbIxDIpHOll5cLUzGWx0l/Mlcg9cQ=
+github.com/gumieri/typist v1.0.4 h1:oQnuNKQ+RBoDcoMvp0Da8z+2Qsh4R3y4kydeiEhL3Bs=
+github.com/gumieri/typist v1.0.4/go.mod h1:WcfG796Sv8a7K6ZbIxDIpHOll5cLUzGWx0l/Mlcg9cQ=
 github.com/hashicorp/go-version v1.2.0 h1:3vNe/fWF5CBgRIguda1meWhsZHy3m8gCJ5wx+dIzX/E=
 github.com/hashicorp/go-version v1.2.0/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=

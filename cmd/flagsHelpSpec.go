@@ -124,3 +124,6 @@ Valid values: 'linux', 'windows', 'windows-2016', 'windows-2019'`
 var status string
 var statusSpec = `Task definition Status
 Valid values: 'all', 'active', 'inactive'`
+
+var listARN bool
+var listARNSpec = `List resources ARNs`

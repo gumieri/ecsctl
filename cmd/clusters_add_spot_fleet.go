@@ -21,10 +21,10 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 			aws.String(clusters[0]),
 		},
 	})
-	typist.Must(err)
+	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		typist.Must(errors.New("Cluster informed not found"))
+		t.Must(errors.New("Cluster informed not found"))
 	}
 
 	c := clustersDescription.Clusters[0]
@@ -38,17 +38,17 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	tmpl, err := template.New("UserData").Parse(userData)
-	typist.Must(err)
+	t.Must(err)
 
 	userDataF := new(bytes.Buffer)
-	typist.Must(tmpl.Execute(userDataF, templateUserData{
+	t.Must(tmpl.Execute(userDataF, templateUserData{
 		Cluster: *c.ClusterName,
 		Region:  aws.StringValue(awsSession.Config.Region),
 	}))
 
 	if amiID == "" {
 		latestAMI, err := latestAmiEcsOptimized(platform)
-		typist.Must(err)
+		t.Must(err)
 
 		amiID = aws.StringValue(latestAMI.ImageId)
 	}
@@ -57,18 +57,18 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	spotFleetRoleResponse, err := iamI.GetRole(&iam.GetRoleInput{
 		RoleName: aws.String(spotFleetRole),
 	})
-	typist.Must(err)
+	t.Must(err)
 
 	// TODO: automaticaly --create-roles if does not exist
 	instanceProfileResponse, err := iamI.GetInstanceProfile(&iam.GetInstanceProfileInput{
 		InstanceProfileName: aws.String(instanceProfile),
 	})
-	typist.Must(err)
+	t.Must(err)
 
 	var SecurityGroups []*ec2.GroupIdentifier
 	for _, securityGroup := range securityGroups {
 		sg, err := findSecurityGroup(securityGroup)
-		typist.Must(err)
+		t.Must(err)
 
 		SecurityGroups = append(SecurityGroups, &ec2.GroupIdentifier{
 			GroupId: sg.GroupId,
@@ -78,7 +78,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	var subnetsIds []string
 	for _, subnet := range subnets {
 		Subnet, err := findSubnet(subnet)
-		typist.Must(err)
+		t.Must(err)
 		subnetsIds = append(subnetsIds, aws.StringValue(Subnet.SubnetId))
 	}
 
@@ -90,7 +90,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		var weight float64
 		if len(iTWSlice) > 1 {
 			weight, err = strconv.ParseFloat(iTWSlice[1], 64)
-			typist.Must(err)
+			t.Must(err)
 		}
 
 		SpotFleetLaunchSpecification := ec2.SpotFleetLaunchSpecification{
@@ -150,7 +150,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 	_, err = ec2I.RequestSpotFleet(&ec2.RequestSpotFleetInput{
 		SpotFleetRequestConfig: &SpotFleetRequestConfig,
 	})
-	typist.Must(err)
+	t.Must(err)
 }
 
 var clustersAddSpotFleetCmd = &cobra.Command{

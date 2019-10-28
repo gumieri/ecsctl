@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"html/template"
-	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -21,10 +19,10 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 			aws.String(clusters[0]),
 		},
 	})
-	typist.Must(err)
+	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		typist.Must(errors.New("Cluster informed not found"))
+		t.Must(errors.New("Cluster informed not found"))
 	}
 
 	c := clustersDescription.Clusters[0]
@@ -38,19 +36,14 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	tmpl, err := template.New("UserData").Parse(userData)
-	typist.Must(err)
+	t.Must(err)
 
 	userDataF := new(bytes.Buffer)
-	typist.Must(tmpl.Execute(userDataF, templateUserData{Cluster: *c.ClusterName}))
-
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(tmpl.Execute(userDataF, templateUserData{Cluster: *c.ClusterName}))
 
 	if amiID == "" {
 		latestAMI, err := latestAmiEcsOptimized(platform)
-		typist.Must(err)
+		t.Must(err)
 
 		amiID = aws.StringValue(latestAMI.ImageId)
 	}
@@ -63,10 +56,10 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	instanceProfileResponse, err := iamI.GetInstanceProfile(&iam.GetInstanceProfileInput{
 		InstanceProfileName: aws.String(instanceProfile),
 	})
-	typist.Must(err)
+	t.Must(err)
 
 	subnetDescription, err := findSubnet(subnet)
-	typist.Must(err)
+	t.Must(err)
 
 	// TODO: AWS Tags
 	RunInstancesInput := ec2.RunInstancesInput{
@@ -98,7 +91,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	var sgs []*string
 	for _, securityGroup := range securityGroups {
 		sg, err := findSecurityGroup(securityGroup)
-		typist.Must(err)
+		t.Must(err)
 		sgs = append(sgs, sg.GroupId)
 	}
 	RunInstancesInput.SecurityGroupIds = sgs
@@ -116,7 +109,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	}
 
 	_, err = ec2I.RunInstances(&RunInstancesInput)
-	typist.Must(err)
+	t.Must(err)
 }
 
 var clustersAddInstanceCmd = &cobra.Command{

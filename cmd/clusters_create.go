@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/spf13/cobra"
@@ -11,14 +8,9 @@ import (
 
 func clustersCreateRun(cmd *cobra.Command, clusters []string) {
 	for _, cluster := range clusters {
-		_, err := ecsI.CreateCluster(&ecs.CreateClusterInput{
+		t.Must(ecsI.CreateCluster(&ecs.CreateClusterInput{
 			ClusterName: aws.String(cluster),
-		})
-
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		}))
 	}
 }
 

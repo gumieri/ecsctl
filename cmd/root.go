@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -12,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/iam"
-	typistPkg "github.com/gumieri/typist"
+	"github.com/gumieri/typist"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -24,7 +23,11 @@ var ec2I *ec2.EC2
 var iamI *iam.IAM
 var cwlI *cloudwatchlogs.CloudWatchLogs
 
-var typist *typistPkg.Typist
+var t = typist.New(&typist.Config{
+	Quiet: quiet,
+	In:    os.Stdin,
+	Out:   os.Stdout,
+})
 
 var awsSession *session.Session
 
@@ -46,12 +49,6 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	ec2I = ec2.New(awsSession)
 	iamI = iam.New(awsSession)
 	cwlI = cloudwatchlogs.New(awsSession)
-
-	typist = &typistPkg.Typist{
-		Quiet: quiet,
-		In:    os.Stdin,
-		Out:   os.Stdout,
-	}
 }
 
 var rootCmd = &cobra.Command{
@@ -63,10 +60,7 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	t.Must(rootCmd.Execute())
 }
 
 func init() {
@@ -89,10 +83,7 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	} else {
 		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		t.Must(err)
 
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".ecsctl")

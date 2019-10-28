@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -62,12 +60,15 @@ func printEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLo
 	dateStr := date.Format(time.RFC3339)
 	streamStr := aws.StringValue(event.LogStreamName)
 	jl := map[string]interface{}{}
-	if err := json.Unmarshal(bytes, &jl); err != nil {
-		fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
-	} else {
+
+	err := json.Unmarshal(bytes, &jl)
+	if err == nil {
 		output, _ := formatter.Marshal(jl)
-		fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
+		t.Outf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
+		return
 	}
+
+	t.Outf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
 }
 
 func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
@@ -76,10 +77,8 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: aws.String(taskDefinitionFamily),
 	})
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+
+	t.Must(err)
 
 	td := tdDescription.TaskDefinition
 
@@ -92,18 +91,15 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		TaskDefinition: aws.String(taskDefinitionFamily + ":" + revision),
 		StartedBy:      aws.String("ecsctl"),
 	})
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+
+	t.Must(err)
 
 	if len(taskResult.Tasks) == 0 {
-		fmt.Println(errors.New("task failed to run"))
-		os.Exit(1)
+		t.Exitf("task failed to run")
 	}
 
 	if !follow {
-		os.Exit(0)
+		t.Exit(nil)
 	}
 
 	if exit {
@@ -118,7 +114,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 				Task:    taskResult.Tasks[0].TaskArn,
 			})
 
-			os.Exit(0)
+			t.Exit(nil)
 		}()
 	}
 
@@ -127,7 +123,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 
 	logDriver := td.ContainerDefinitions[0].LogConfiguration.LogDriver
 	if aws.StringValue(logDriver) != "awslogs" {
-		os.Exit(0)
+		t.Exit(nil)
 	}
 
 	logPrefix := td.ContainerDefinitions[0].LogConfiguration.Options["awslogs-stream-prefix"]
@@ -180,8 +176,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 			retryCount = retryCount + 1
 
 			if retryCount >= retryLimit {
-				fmt.Println(err.Error())
-				os.Exit(1)
+				t.Exit(err)
 			}
 		}
 
@@ -195,8 +190,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		})
 
 		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
+			t.Exit(err)
 		}
 
 		status := aws.StringValue(tasksStatus.Tasks[0].LastStatus)

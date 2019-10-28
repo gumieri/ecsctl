@@ -1,10 +1,6 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
-	"os"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/spf13/cobra"
@@ -18,32 +14,22 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 		},
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
 	if len(targetClustersDescription.Clusters) == 0 {
-		fmt.Println(errors.New("Target Cluster informed not found"))
-		os.Exit(1)
+		t.Exitf("Target Cluster informed not found")
 	}
 
 	targetC := targetClustersDescription.Clusters[0]
 
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
-		Clusters: []*string{
-			aws.String(cluster),
-		},
+		Clusters: []*string{aws.String(cluster)},
 	})
 
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		fmt.Println(errors.New("Source Cluster informed not found"))
-		os.Exit(1)
+		t.Exitf("Source Cluster informed not found")
 	}
 
 	c := clustersDescription.Clusters[0]
@@ -54,8 +40,7 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 	})
 
 	if len(servicesDescription.Services) < len(services) {
-		fmt.Println(errors.New("One or more services informed was not found"))
-		os.Exit(1)
+		t.Exitf("One or more services informed was not found")
 	}
 
 	for _, s := range servicesDescription.Services {
