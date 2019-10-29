@@ -1,6 +1,29 @@
-# ecsctl
+# ecsctl *WORK IN PROGRESS*
 
-## *WORK IN PROGRESS*
+## Installation
+
+All builds are available at the [releases](https://github.com/gumieri/ecsctl/releases) page.
+
+A simple way to install, if you are using Mac OS or Linux, is to run the commands bellow with elevated permissions (like as `root`):
+```bash
+curl -L https://github.com/gumieri/ecsctl/releases/latest/download/ecsctl-`uname -s`-`uname -m` -o /usr/local/bin/ecsctl
+chmod +x /usr/local/bin/ecsctl
+```
+
+To upgrade program to the latest version available, just run:
+```bash
+ecsctl upgrade
+```
+
+## Configurations
+`ecsctl` will look for configurations at `$XDG_CONFIG_HOME/ecsctl/config.yaml` or `~/.ecsctl.yaml`.
+The file can be a JSON, TOML, YAML, HCL or envfile. Any configuration can also be set as environment variable and it also respect the `AWS_*` environment variables or roles from AWS IAM (by extension of the AWS SDK).
+
+A configuration example:
+```
+region: "us-east-1"
+cluster: "awesome"
+```
 
 ## Commands
 
