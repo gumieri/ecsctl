@@ -66,6 +66,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().String("config", "", cfgFileSpec)
+	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 
 	rootCmd.PersistentFlags().String("profile", "", profileSpec)
 	viper.BindPFlag("profile", rootCmd.PersistentFlags().Lookup("profile"))
