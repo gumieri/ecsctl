@@ -12,11 +12,10 @@ import (
 
 func servicesDeployRun(cmd *cobra.Command, args []string) {
 	service := args[0]
+	cluster := viper.GetString("cluster")
 
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
-		Clusters: []*string{
-			aws.String(viper.GetString("cluster")),
-		},
+		Clusters: []*string{aws.String(cluster)},
 	})
 
 	t.Must(err)
@@ -40,6 +39,16 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 		t.Exitf("Service informed not found")
 	}
 
+	if tag == "" && image == "" {
+		t.Must(ecsI.UpdateService(&ecs.UpdateServiceInput{
+			Cluster:            c.ClusterName,
+			Service:            aws.String(service),
+			ForceNewDeployment: aws.Bool(true),
+		}))
+
+		t.Exit(nil)
+	}
+
 	s := servicesDescription.Services[0]
 
 	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
@@ -52,6 +61,7 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 
 	var cdToUpdate *ecs.ContainerDefinition
 
+	// If no Container Definition's name is informed, it get the first one
 	if containerName == "" {
 		cdToUpdate = td.ContainerDefinitions[0]
 	} else {
@@ -120,11 +130,14 @@ func init() {
 	flags := servicesDeployCmd.Flags()
 
 	flags.StringVar(&containerName, "container", "", containerNameSpec)
+	viper.BindPFlag("container", servicesDeployCmd.Flags().Lookup("container"))
 
 	flags.StringVarP(&tag, "tag", "t", "", tagSpec)
+	viper.BindPFlag("tag", servicesDeployCmd.Flags().Lookup("tag"))
+
 	flags.StringVarP(&image, "image", "i", "", imageSpec)
+	viper.BindPFlag("image", servicesDeployCmd.Flags().Lookup("image"))
+
 	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
 	viper.BindPFlag("cluster", servicesDeployCmd.Flags().Lookup("cluster"))
-
-	servicesDeployCmd.MarkFlagRequired("cluster")
 }
