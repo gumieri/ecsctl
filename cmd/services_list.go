@@ -20,7 +20,7 @@ func servicesListRun(cmd *cobra.Command, services []string) {
 	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		t.Exitf("Source Cluster informed not found")
+		t.Exitln("Source Cluster informed not found")
 	}
 
 	c := clustersDescription.Clusters[0]

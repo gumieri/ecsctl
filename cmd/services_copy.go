@@ -19,7 +19,7 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 	t.Must(err)
 
 	if len(targetClustersDescription.Clusters) == 0 {
-		t.Exitf("Target Cluster informed not found")
+		t.Exitln("Target Cluster informed not found")
 	}
 
 	targetC := targetClustersDescription.Clusters[0]
@@ -31,7 +31,7 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		t.Exitf("Source Cluster informed not found")
+		t.Exitln("Source Cluster informed not found")
 	}
 
 	c := clustersDescription.Clusters[0]
@@ -42,7 +42,7 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 	})
 
 	if len(servicesDescription.Services) < len(services) {
-		t.Exitf("One or more services informed was not found")
+		t.Exitln("One or more services informed was not found")
 	}
 
 	for _, s := range servicesDescription.Services {

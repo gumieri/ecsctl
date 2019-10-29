@@ -97,7 +97,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 	t.Must(err)
 
 	if len(taskResult.Tasks) == 0 {
-		t.Exitf("task failed to run")
+		t.Exitln("task failed to run")
 	}
 
 	if !follow {

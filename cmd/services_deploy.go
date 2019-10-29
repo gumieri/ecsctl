@@ -25,7 +25,7 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 	t.Must(err)
 
 	if len(clustersDescription.Clusters) == 0 {
-		t.Exitf("Cluster informed not found")
+		t.Exitln("Cluster informed not found")
 	}
 
 	c := clustersDescription.Clusters[0]
@@ -38,7 +38,7 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 	t.Must(err)
 
 	if len(servicesDescription.Failures) != 0 {
-		t.Exitf("A service informed aws not found") // TODO: handle the `Arn` and `Reason` to a more accurate error message
+		t.Exitln("A service informed aws not found") // TODO: handle the `Arn` and `Reason` to a more accurate error message
 	}
 
 	if tag == "" && image == "" {
@@ -77,7 +77,7 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 		}
 
 		if cdToUpdate == nil {
-			t.Exitf("No container on the Task Family %s", aws.StringValue(td.Family))
+			t.Exitf("No container on the Task Family %s\n", aws.StringValue(td.Family))
 		}
 
 		if tag != "" {
