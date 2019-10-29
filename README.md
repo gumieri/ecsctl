@@ -68,6 +68,7 @@ It is organized by subcommands / categories:
 
 clusters
   - [x] create
+  - [ ] edit (container insights and tags)
   - [x] delete
   - [x] list
   - [x] add-instance
