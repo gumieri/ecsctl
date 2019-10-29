@@ -41,7 +41,6 @@ var profileSpec = `AWS Profile`
 var region string
 var regionSpec = `AWS Region`
 
-var cluster string
 var clusterSpec = `AWS ECS cluster`
 
 var toCluster string

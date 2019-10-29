@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"os"
+	"path"
 
+	"github.com/adrg/xdg"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -17,29 +18,27 @@ import (
 	"github.com/spf13/viper"
 )
 
+const command = "ecsctl"
+
 var ecsI *ecs.ECS
 var ecrI *ecr.ECR
 var ec2I *ec2.EC2
 var iamI *iam.IAM
 var cwlI *cloudwatchlogs.CloudWatchLogs
 
-var t = typist.New(&typist.Config{
-	Quiet: quiet,
-	In:    os.Stdin,
-	Out:   os.Stdout,
-})
+var t = typist.New(&typist.Config{Quiet: quiet})
 
 var awsSession *session.Session
 
 func persistentPreRun(cmd *cobra.Command, args []string) {
 	awsConfig := aws.Config{}
 
-	if region != "" {
-		awsConfig.Region = aws.String(region)
+	if r := viper.GetString("region"); r != "" {
+		awsConfig.Region = aws.String(r)
 	}
 
-	if profile != "" {
-		awsConfig.Credentials = credentials.NewSharedCredentials("", profile)
+	if p := viper.GetString("profile"); p != "" {
+		awsConfig.Credentials = credentials.NewSharedCredentials("", p)
 	}
 
 	awsSession = session.New(&awsConfig)
@@ -52,7 +51,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 }
 
 var rootCmd = &cobra.Command{
-	Use:              "ecsctl",
+	Use:              command,
 	Short:            "Collection of extra functions for AWS ECS",
 	PersistentPreRun: persistentPreRun,
 }
@@ -66,27 +65,29 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", cfgFileSpec)
+	rootCmd.PersistentFlags().String("config", "", cfgFileSpec)
 
-	rootCmd.PersistentFlags().StringVar(&profile, "profile", "", profileSpec)
+	rootCmd.PersistentFlags().String("profile", "", profileSpec)
 	viper.BindPFlag("profile", rootCmd.PersistentFlags().Lookup("profile"))
 
-	rootCmd.PersistentFlags().StringVar(&region, "region", "", regionSpec)
+	rootCmd.PersistentFlags().String("region", "", regionSpec)
 	viper.BindPFlag("region", rootCmd.PersistentFlags().Lookup("region"))
 
-	rootCmd.PersistentFlags().BoolVarP(&quiet, "quiet", "q", false, quietSpec)
+	rootCmd.PersistentFlags().BoolP("quiet", "q", false, quietSpec)
 	viper.BindPFlag("quiet", rootCmd.PersistentFlags().Lookup("quiet"))
 }
 
 func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
+	config := viper.GetString("config")
+	if config == "" {
 		home, err := homedir.Dir()
 		t.Must(err)
 
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".ecsctl")
+		viper.SetConfigName("config")
+		viper.AddConfigPath(path.Join(home, "."+command))
+		viper.AddConfigPath(path.Join(xdg.ConfigHome, command))
+	} else {
+		viper.SetConfigFile(config)
 	}
 
 	viper.AutomaticEnv()

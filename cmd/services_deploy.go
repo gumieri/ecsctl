@@ -15,7 +15,7 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
-			aws.String(cluster),
+			aws.String(viper.GetString("cluster")),
 		},
 	})
 
@@ -123,9 +123,8 @@ func init() {
 
 	flags.StringVarP(&tag, "tag", "t", "", tagSpec)
 	flags.StringVarP(&image, "image", "i", "", imageSpec)
-	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
+	viper.BindPFlag("cluster", servicesDeployCmd.Flags().Lookup("cluster"))
 
 	servicesDeployCmd.MarkFlagRequired("cluster")
-
-	viper.BindPFlag("cluster", servicesDeployCmd.Flags().Lookup("cluster"))
 }

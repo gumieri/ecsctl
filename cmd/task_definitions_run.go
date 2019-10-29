@@ -72,6 +72,8 @@ func printEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLo
 }
 
 func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
+	cluster := viper.GetString("cluster")
+
 	taskDefinitionFamily := args[0]
 
 	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
@@ -220,9 +222,9 @@ func init() {
 
 	flags.StringVar(&revision, "revision", "", revisionSpec)
 
-	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
+	viper.BindPFlag("cluster", taskDefinitionsRunCmd.Flags().Lookup("cluster"))
 
 	taskDefinitionsRunCmd.MarkFlagRequired("cluster")
 
-	viper.BindPFlag("cluster", taskDefinitionsRunCmd.Flags().Lookup("cluster"))
 }

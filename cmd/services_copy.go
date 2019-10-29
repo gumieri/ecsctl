@@ -8,6 +8,8 @@ import (
 )
 
 func servicesCopyRun(cmd *cobra.Command, services []string) {
+	cluster := viper.GetString("cluster")
+
 	targetClustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
 			aws.String(toCluster),
@@ -81,10 +83,10 @@ func init() {
 	flags := servicesCopyCmd.Flags()
 
 	flags.StringVarP(&toCluster, "to-cluster", "t", "", requiredSpec+toClusterSpec)
-	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
+	viper.BindPFlag("cluster", servicesCopyCmd.Flags().Lookup("cluster"))
 
 	servicesCopyCmd.MarkFlagRequired("cluster")
 	servicesCopyCmd.MarkFlagRequired("to-cluster")
 
-	viper.BindPFlag("cluster", servicesCopyCmd.Flags().Lookup("cluster"))
 }

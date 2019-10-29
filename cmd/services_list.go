@@ -13,7 +13,7 @@ import (
 func servicesListRun(cmd *cobra.Command, services []string) {
 	clustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
-			aws.String(cluster),
+			aws.String(viper.GetString("cluster")),
 		},
 	})
 
@@ -55,10 +55,11 @@ func init() {
 
 	flags := servicesListCmd.Flags()
 
-	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
+	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
+	viper.BindPFlag("cluster", servicesListCmd.Flags().Lookup("cluster"))
+
 	flags.BoolVar(&listARN, "arn", false, listARNSpec)
 
 	servicesCopyCmd.MarkFlagRequired("cluster")
 
-	viper.BindPFlag("cluster", servicesListCmd.Flags().Lookup("cluster"))
 }
