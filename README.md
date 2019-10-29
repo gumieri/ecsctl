@@ -2,7 +2,7 @@
 
 ## Installation
 
-All builds are available at the [releases](https://github.com/gumieri/ecsctl/releases) page.
+All builds are available at the [releases](https://github.com/gumieri/ecsctl/releases) page. The program is a single executable and to install it is simply placing it into a directory configured in the `PATH` of the system.
 
 A simple way to install, if you are using Mac OS or Linux, is to run the commands bellow with elevated permissions (like as `root`):
 ```bash
