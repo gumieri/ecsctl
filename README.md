@@ -10,6 +10,13 @@ curl -L https://github.com/gumieri/ecsctl/releases/latest/download/ecsctl-`uname
 chmod +x /usr/local/bin/ecsctl
 ```
 
+For modern Linux systems, it would be recomended to place the executable at `~/.local/bin`, the command for it does not require elevated permission:
+```bash
+mkdir -p ~/.local/bin
+curl -L https://github.com/gumieri/ecsctl/releases/latest/download/ecsctl-`uname -s`-`uname -m` -o ~/.local/bin/ecsctl
+chmod +x ~/.local/bin/ecsctl
+```
+
 To upgrade program to the latest version available, just run:
 ```bash
 ecsctl upgrade
