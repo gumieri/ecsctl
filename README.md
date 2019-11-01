@@ -27,7 +27,7 @@ ecsctl upgrade
 The file can be a JSON, TOML, YAML, HCL or envfile. Any configuration can also be set as environment variable and it also respect the `AWS_*` environment variables or roles from AWS IAM (by extension of the AWS SDK).
 
 A configuration example:
-```
+```yaml
 region: "us-east-1"
 cluster: "awesome"
 ```
