@@ -16,7 +16,7 @@ ecsctl upgrade
 ```
 
 ## Configurations
-`ecsctl` will look for configurations at `$XDG_CONFIG_HOME/ecsctl/config.yaml` or `~/.ecsctl.yaml`.
+`ecsctl` will look for configurations at `$XDG_CONFIG_HOME/ecsctl/config.yaml` or `~/.ecsctl/config.yaml`.
 The file can be a JSON, TOML, YAML, HCL or envfile. Any configuration can also be set as environment variable and it also respect the `AWS_*` environment variables or roles from AWS IAM (by extension of the AWS SDK).
 
 A configuration example:
