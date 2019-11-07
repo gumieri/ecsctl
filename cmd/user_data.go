@@ -9,6 +9,7 @@ var linuxSpotFleetUserData = `
 #!/bin/bash
 echo ECS_CLUSTER={{.Cluster}} >> /etc/ecs/ecs.config
 echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config
+echo ECS_ENABLE_SPOT_INSTANCE_DRAINING=true >> /etc/ecs/ecs.config
 export PATH=/usr/local/bin:$PATH
 yum -y install jq
 easy_install pip
