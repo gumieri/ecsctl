@@ -60,6 +60,6 @@ func init() {
 
 	flags.BoolVar(&listARN, "arn", false, listARNSpec)
 
-	servicesCopyCmd.MarkFlagRequired("cluster")
+	servicesListCmd.MarkFlagRequired("cluster")
 
 }

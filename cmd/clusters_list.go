@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/spf13/cobra"
 )
@@ -18,8 +21,16 @@ func clustersListRun(cmd *cobra.Command, clusters []string) {
 		result, err := ecsI.ListClusters(input)
 		t.Must(err)
 
-		for _, f := range result.ClusterArns {
-			t.Outln(aws.StringValue(f))
+		for _, clusterARN := range result.ClusterArns {
+			if listARN {
+				t.Outln(aws.StringValue(clusterARN))
+				continue
+			}
+
+			parsedARN, err := arn.Parse(aws.StringValue(clusterARN))
+			t.Must(err)
+			parsedResource := strings.Split(parsedARN.Resource, "/")
+			t.Outln(parsedResource[len(parsedResource)-1])
 		}
 
 		if result.NextToken == nil {
@@ -38,4 +49,8 @@ var clustersListCmd = &cobra.Command{
 
 func init() {
 	clustersCmd.AddCommand(clustersListCmd)
+
+	flags := clustersListCmd.Flags()
+
+	flags.BoolVar(&listARN, "arn", false, listARNSpec)
 }
