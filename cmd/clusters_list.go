@@ -42,9 +42,10 @@ func clustersListRun(cmd *cobra.Command, clusters []string) {
 }
 
 var clustersListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List clusters",
-	Run:   clustersListRun,
+	Use:     "list",
+	Short:   "List clusters",
+	Aliases: []string{"l"},
+	Run:     clustersListRun,
 }
 
 func init() {

@@ -5,12 +5,13 @@ go 1.12
 require (
 	github.com/TylerBrock/colorjson v0.0.0-20180527164720-95ec53f28296
 	github.com/adrg/xdg v0.0.0-20191014103126-5e0e8ae1af11
+	github.com/ahmetb/go-cursor v0.0.0-20131010032410-8136607ea412
 	github.com/aws/aws-sdk-go v1.25.21
 	github.com/fatih/color v1.7.0
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gumieri/open-in-editor v0.0.0-20180920123653-4f3f3f35875d
-	github.com/gumieri/typist v1.2.1
+	github.com/gumieri/typist v1.3.1
 	github.com/hashicorp/go-version v1.2.0
 	github.com/hokaccha/go-prettyjson v0.0.0-20180920040306-f579f869bbfe // indirect
 	github.com/magiconair/properties v1.8.1 // indirect

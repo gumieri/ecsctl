@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strconv"
-	"strings"
-	"text/tabwriter"
+	"time"
 
+	"github.com/ahmetb/go-cursor"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/gumieri/typist"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -18,6 +18,53 @@ import (
 type CompleteInstance struct {
 	EC2 *ec2.Instance
 	ECS *ecs.ContainerInstance
+}
+
+// GetInstances return a slice of CompleteInstance from specified Cluster
+func GetInstances(c *ecs.Cluster) ([]*CompleteInstance, error) {
+	instancesList, err := ecsI.ListContainerInstances(&ecs.ListContainerInstancesInput{
+		Cluster: c.ClusterName,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	instancesDescription, err := ecsI.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
+		Cluster:            c.ClusterName,
+		ContainerInstances: instancesList.ContainerInstanceArns,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	ec2InstancesIDs := make([]*string, 0)
+	completeInstances := make([]*CompleteInstance, 0)
+	for _, instance := range instancesDescription.ContainerInstances {
+		ec2InstancesIDs = append(ec2InstancesIDs, instance.Ec2InstanceId)
+		completeInstances = append(completeInstances, &CompleteInstance{ECS: instance})
+	}
+
+	ec2Description, err := ec2I.DescribeInstances(&ec2.DescribeInstancesInput{InstanceIds: ec2InstancesIDs})
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, reservation := range ec2Description.Reservations {
+		for _, instance := range reservation.Instances {
+			for _, completeInstance := range completeInstances {
+				if aws.StringValue(completeInstance.ECS.Ec2InstanceId) != aws.StringValue(instance.InstanceId) {
+					continue
+				}
+
+				completeInstance.EC2 = instance
+			}
+		}
+	}
+
+	return completeInstances, nil
 }
 
 // SpotFleetRequestID get the Spot Fleet Request ID from the EC2 tags
@@ -85,6 +132,19 @@ func (i *CompleteInstance) formatProperty(property string, header bool) string {
 
 		return "No"
 
+	case "agent-version":
+		if header {
+			return "Agent version"
+		}
+
+		return aws.StringValue(i.ECS.VersionInfo.AgentVersion)
+
+	case "docker-version":
+		if header {
+			return "Docker version"
+		}
+
+		return aws.StringValue(i.ECS.VersionInfo.DockerVersion)
 	case "launch-time":
 		if header {
 			return "Status"
@@ -110,67 +170,69 @@ func instancesListRun(cmd *cobra.Command, instances []string) {
 		t.Exitln("Source Cluster informed not found")
 	}
 
-	c := clustersDescription.Clusters[0]
-
-	instancesList, err := ecsI.ListContainerInstances(&ecs.ListContainerInstancesInput{
-		Cluster: c.ClusterName,
-	})
-
-	t.Must(err)
-
-	instancesDescription, err := ecsI.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
-		Cluster:            c.ClusterName,
-		ContainerInstances: instancesList.ContainerInstanceArns,
-	})
-	t.Must(err)
-
-	ec2InstancesIDs := make([]*string, 0)
-	completeInstances := make([]*CompleteInstance, 0)
-	for _, instance := range instancesDescription.ContainerInstances {
-		ec2InstancesIDs = append(ec2InstancesIDs, instance.Ec2InstanceId)
-		completeInstances = append(completeInstances, &CompleteInstance{ECS: instance})
+	watch := viper.GetBool("watch")
+	interval := viper.GetInt("interval")
+	if interval != 0 {
+		watch = true
+	} else if watch {
+		interval = 5
 	}
 
-	ec2Description, err := ec2I.DescribeInstances(&ec2.DescribeInstancesInput{InstanceIds: ec2InstancesIDs})
-	t.Must(err)
+	lc := 0
+	for {
+		completeInstances, err := GetInstances(clustersDescription.Clusters[0])
+		t.Must(err)
 
-	for _, reservation := range ec2Description.Reservations {
-		for _, instance := range reservation.Instances {
-			for _, completeInstance := range completeInstances {
-				if aws.StringValue(completeInstance.ECS.Ec2InstanceId) != aws.StringValue(instance.InstanceId) {
-					continue
-				}
+		properties := viper.GetStringSlice("properties")
 
-				completeInstance.EC2 = instance
-			}
+		table := &typist.Table{
+			Header:   []string{},
+			Lines:    [][]string{},
+			MinWidth: 1,
+			TabWidth: 1,
+			Padding:  1,
+			PadChar:  ' ',
 		}
-	}
 
-	properties := viper.GetStringSlice("properties")
-
-	header := []string{}
-	for _, p := range properties {
-		header = append(header, completeInstances[0].formatProperty(p, true))
-	}
-
-	w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
-	fmt.Fprintln(w, strings.Join(header, "\t"))
-
-	for _, i := range completeInstances {
-		line := []string{}
 		for _, p := range properties {
-			line = append(line, i.formatProperty(p, false))
+			table.Header = append(table.Header, completeInstances[0].formatProperty(p, true))
 		}
-		fmt.Fprintln(w, strings.Join(line, "\t"))
-	}
 
-	w.Flush()
+		for _, instance := range completeInstances {
+			line := []string{}
+			for _, p := range properties {
+				line = append(line, instance.formatProperty(p, false))
+			}
+			table.Lines = append(table.Lines, line)
+		}
+
+		t.Config.Header = !viper.GetBool("no-header")
+
+		if lc != 0 {
+			fmt.Print(cursor.MoveUp(lc))
+		}
+		t.Table(table)
+
+		lc = len(table.Lines)
+		if t.Config.Header {
+			lc++
+		}
+
+		fmt.Print(cursor.ClearScreenDown())
+
+		if !watch {
+			t.Exit(nil)
+		}
+
+		time.Sleep(time.Duration(interval) * time.Second)
+	}
 }
 
 var instancesListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List instances of specified cluster",
-	Run:   instancesListRun,
+	Use:     "list",
+	Short:   "List instances of specified cluster",
+	Aliases: []string{"l"},
+	Run:     instancesListRun,
 }
 
 func init() {
@@ -189,6 +251,15 @@ func init() {
 	}
 
 	flags.StringSliceP("properties", "p", defaultColumns, "properties to be listed as column\n")
+
+	flags.Bool("no-header", false, noHeaderSpec)
+	viper.BindPFlag("no-header", instancesListCmd.Flags().Lookup("no-header"))
+
+	flags.Bool("watch", false, watchSpec)
+	viper.BindPFlag("watch", instancesListCmd.Flags().Lookup("watch"))
+
+	flags.Int("interval", 0, "Interval of time (in seconds) refreshing (default: 5)")
+	viper.BindPFlag("interval", instancesListCmd.Flags().Lookup("interval"))
 
 	viper.BindPFlag("properties", instancesListCmd.Flags().Lookup("properties"))
 }

@@ -45,9 +45,10 @@ func servicesListRun(cmd *cobra.Command, services []string) {
 }
 
 var servicesListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List services of specified cluster",
-	Run:   servicesListRun,
+	Use:     "list",
+	Short:   "List services of specified cluster",
+	Aliases: []string{"l"},
+	Run:     servicesListRun,
 }
 
 func init() {

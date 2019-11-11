@@ -39,7 +39,7 @@ func latestAmiEcsOptimized(platform string) (latestImage ec2.Image, err error) {
 	case "windows-2016":
 		nameFilter = "Windows_Server-2016-English-Full-ECS_Optimized-??????????"
 	default:
-		nameFilter = "amzn-ami-?????????-amazon-ecs-optimized"
+		nameFilter = "amzn2-ami-ecs-hvm-????????????-x86_64-ebs"
 	}
 
 	result, err := ec2I.DescribeImages(&ec2.DescribeImagesInput{

@@ -26,7 +26,7 @@ var ec2I *ec2.EC2
 var iamI *iam.IAM
 var cwlI *cloudwatchlogs.CloudWatchLogs
 
-var t = typist.New(&typist.Config{Quiet: quiet})
+var t = typist.New(&typist.Config{Quiet: quiet, Header: true})
 
 var awsSession *session.Session
 

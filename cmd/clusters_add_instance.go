@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
@@ -41,11 +42,12 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	userDataF := new(bytes.Buffer)
 	t.Must(tmpl.Execute(userDataF, templateUserData{Cluster: *c.ClusterName}))
 
-	if amiID == "" {
+	ami := viper.GetString("ami")
+	if ami == "latest" || ami == "" {
 		latestAMI, err := latestAmiEcsOptimized(platform)
 		t.Must(err)
 
-		amiID = aws.StringValue(latestAMI.ImageId)
+		ami = aws.StringValue(latestAMI.ImageId)
 	}
 
 	// TODO: automaticaly --create-roles if does not exist
@@ -65,7 +67,7 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 	RunInstancesInput := ec2.RunInstancesInput{
 		IamInstanceProfile: &ec2.IamInstanceProfileSpecification{Arn: instanceProfileResponse.InstanceProfile.Arn},
 		EbsOptimized:       aws.Bool(ebs),
-		ImageId:            aws.String(amiID),
+		ImageId:            aws.String(ami),
 		SubnetId:           subnetDescription.SubnetId,
 		InstanceType:       aws.String(instanceType),
 		UserData:           aws.String(base64.StdEncoding.EncodeToString(userDataF.Bytes())),
@@ -137,7 +139,8 @@ func init() {
 	flags.Int64Var(&minimum, "min", 1, minimumSpec)
 	flags.Int64Var(&maximum, "max", 1, maximumSpec)
 	flags.StringVar(&credit, "credit", "", creditSpec)
-	flags.StringVar(&amiID, "ami-id", "", amiIDSpec)
+	flags.String("ami", "latest", `The Amazon EC2 Image ID
+The "latest" refers to the latest ECS Optimized published by the AWS`)
 
 	clustersAddSpotFleetCmd.MarkFlagRequired("subnet")
 	clustersAddSpotFleetCmd.MarkFlagRequired("instance-type")

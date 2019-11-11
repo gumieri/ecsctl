@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
@@ -46,11 +47,12 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 		Region:  aws.StringValue(awsSession.Config.Region),
 	}))
 
-	if amiID == "" {
+	ami := viper.GetString("ami")
+	if ami == "latest" || ami == "" {
 		latestAMI, err := latestAmiEcsOptimized(platform)
 		t.Must(err)
 
-		amiID = aws.StringValue(latestAMI.ImageId)
+		ami = aws.StringValue(latestAMI.ImageId)
 	}
 
 	// TODO: automaticaly --create-roles if does not exist
@@ -98,7 +100,7 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 				Arn: instanceProfileResponse.InstanceProfile.Arn,
 			},
 			EbsOptimized:   aws.Bool(ebs),
-			ImageId:        aws.String(amiID),
+			ImageId:        aws.String(ami),
 			InstanceType:   aws.String(instanceType),
 			SecurityGroups: SecurityGroups,
 			SubnetId:       aws.String(strings.Join(subnetsIds, ",")),
@@ -157,7 +159,7 @@ var clustersAddSpotFleetCmd = &cobra.Command{
 	Use:     "add-spot-fleet [cluster]",
 	Short:   "Add a new Spot Fleet to informed cluster",
 	Args:    cobra.ExactArgs(1),
-	Aliases: []string{"add-spotfleet"},
+	Aliases: []string{"add-spotfleet", "add-sf", "addsf", "asf"},
 	Run:     clustersAddSpotFleetRun,
 }
 
@@ -178,7 +180,8 @@ func init() {
 	flags.StringVar(&spotPrice, "spot-price", "", spotPriceSpec)
 	flags.BoolVar(&monitoring, "monitoring", false, monitoringSpec)
 	flags.StringVar(&kernelID, "kernel-id", "", kernelIDSpec)
-	flags.StringVar(&amiID, "ami-id", "", amiIDSpec)
+	flags.String("ami", "latest", `The Amazon EC2 Image (ID or tag 'Name')
+The "latest" refers to the latest ECS Optimized published by the AWS`)
 	flags.BoolVar(&ebs, "ebs", false, ebsSpec)
 	flags.StringVarP(&key, "key", "k", "", keySpec)
 	flags.StringSliceVarP(&tags, "tag", "t", []string{}, tagsSpec)

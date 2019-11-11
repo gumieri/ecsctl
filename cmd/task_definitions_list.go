@@ -39,10 +39,11 @@ func taskDefinitionsListRun(cmd *cobra.Command, args []string) {
 }
 
 var taskDefinitionsListCmd = &cobra.Command{
-	Use:   "list [prefix filter]",
-	Short: "List all Task Definition Families",
-	Args:  cobra.MaximumNArgs(1),
-	Run:   taskDefinitionsListRun,
+	Use:     "list [prefix filter]",
+	Short:   "List all Task Definition Families",
+	Aliases: []string{"l"},
+	Args:    cobra.MaximumNArgs(1),
+	Run:     taskDefinitionsListRun,
 }
 
 func init() {
