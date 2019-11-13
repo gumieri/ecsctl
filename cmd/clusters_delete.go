@@ -58,10 +58,11 @@ func clustersDeleteRun(cmd *cobra.Command, clusters []string) {
 }
 
 var clustersDeleteCmd = &cobra.Command{
-	Use:   "delete [clusters...]",
-	Short: "Delete clusters",
-	Args:  cobra.MinimumNArgs(1),
-	Run:   clustersDeleteRun,
+	Use:              "delete [clusters...]",
+	Short:            "Delete clusters",
+	Args:             cobra.MinimumNArgs(1),
+	Run:              clustersDeleteRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

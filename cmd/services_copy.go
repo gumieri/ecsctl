@@ -71,10 +71,11 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 }
 
 var servicesCopyCmd = &cobra.Command{
-	Use:   "copy [services...]",
-	Short: "Copy a service to another cluster",
-	Args:  cobra.MinimumNArgs(1),
-	Run:   servicesCopyRun,
+	Use:              "copy [services...]",
+	Short:            "Copy a service to another cluster",
+	Args:             cobra.MinimumNArgs(1),
+	Run:              servicesCopyRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

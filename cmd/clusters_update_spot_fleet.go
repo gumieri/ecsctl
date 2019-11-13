@@ -157,10 +157,11 @@ func clustersUpdateSpotFleetRun(cmd *cobra.Command, clusters []string) {
 }
 
 var clustersUpdateSpotFleetCmd = &cobra.Command{
-	Use:     "update-spot-fleet [cluster]",
-	Short:   "Create a new Spot Fleet request from a previous one and wait for the previous draining before cancelling.",
-	Aliases: []string{"update-spotfleet", "update-sf", "updatesf", "usf"},
-	Run:     clustersUpdateSpotFleetRun,
+	Use:              "update-spot-fleet [cluster]",
+	Short:            "Create a new Spot Fleet request from a previous one and wait for the previous draining before cancelling.",
+	Aliases:          []string{"update-spotfleet", "update-sf", "updatesf", "usf"},
+	Run:              clustersUpdateSpotFleetRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

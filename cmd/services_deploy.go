@@ -122,10 +122,11 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 }
 
 var servicesDeployCmd = &cobra.Command{
-	Use:   "deploy [service]",
-	Short: "Deploy a service",
-	Args:  cobra.MinimumNArgs(1),
-	Run:   servicesDeployRun,
+	Use:              "deploy [service]",
+	Short:            "Deploy a service",
+	Args:             cobra.MinimumNArgs(1),
+	Run:              servicesDeployRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

@@ -156,11 +156,12 @@ func clustersAddSpotFleetRun(cmd *cobra.Command, clusters []string) {
 }
 
 var clustersAddSpotFleetCmd = &cobra.Command{
-	Use:     "add-spot-fleet [cluster]",
-	Short:   "Add a new Spot Fleet to informed cluster",
-	Args:    cobra.ExactArgs(1),
-	Aliases: []string{"add-spotfleet", "add-sf", "addsf", "asf"},
-	Run:     clustersAddSpotFleetRun,
+	Use:              "add-spot-fleet [cluster]",
+	Short:            "Add a new Spot Fleet to informed cluster",
+	Args:             cobra.ExactArgs(1),
+	Aliases:          []string{"add-spotfleet", "add-sf", "addsf", "asf"},
+	Run:              clustersAddSpotFleetRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

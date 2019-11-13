@@ -115,10 +115,11 @@ func clustersAddInstanceRun(cmd *cobra.Command, clusters []string) {
 }
 
 var clustersAddInstanceCmd = &cobra.Command{
-	Use:   "add-instance [cluster]",
-	Short: "Add a add EC2 instance to informed cluster",
-	Args:  cobra.ExactArgs(1),
-	Run:   clustersAddInstanceRun,
+	Use:              "add-instance [cluster]",
+	Short:            "Add a add EC2 instance to informed cluster",
+	Args:             cobra.ExactArgs(1),
+	Run:              clustersAddInstanceRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

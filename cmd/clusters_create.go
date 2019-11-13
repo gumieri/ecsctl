@@ -15,9 +15,10 @@ func clustersCreateRun(cmd *cobra.Command, clusters []string) {
 }
 
 var clustersCreateCmd = &cobra.Command{
-	Use:   "create [clusters...]",
-	Short: `Create empty clusters. If not specified a name, create a cluster named default`,
-	Run:   clustersCreateRun,
+	Use:              "create [clusters...]",
+	Short:            `Create empty clusters. If not specified a name, create a cluster named default`,
+	Run:              clustersCreateRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

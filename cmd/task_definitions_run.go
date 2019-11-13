@@ -205,10 +205,11 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 }
 
 var taskDefinitionsRunCmd = &cobra.Command{
-	Use:   "run [task-definition]",
-	Short: "Run a Task Definition",
-	Args:  cobra.ExactArgs(1),
-	Run:   taskDefinitionsRunRun,
+	Use:              "run [task-definition]",
+	Short:            "Run a Task Definition",
+	Args:             cobra.ExactArgs(1),
+	Run:              taskDefinitionsRunRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

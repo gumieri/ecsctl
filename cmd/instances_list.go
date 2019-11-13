@@ -229,10 +229,11 @@ func instancesListRun(cmd *cobra.Command, instances []string) {
 }
 
 var instancesListCmd = &cobra.Command{
-	Use:     "list",
-	Short:   "List instances of specified cluster",
-	Aliases: []string{"l"},
-	Run:     instancesListRun,
+	Use:              "list",
+	Short:            "List instances of specified cluster",
+	Aliases:          []string{"l"},
+	Run:              instancesListRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {

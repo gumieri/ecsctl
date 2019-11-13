@@ -41,7 +41,8 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 		awsConfig.Credentials = credentials.NewSharedCredentials("", p)
 	}
 
-	awsSession = session.New(&awsConfig)
+	awsSession, err := session.NewSession(&awsConfig)
+	t.Must(err)
 
 	ecsI = ecs.New(awsSession)
 	ecrI = ecr.New(awsSession)
@@ -51,9 +52,8 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 }
 
 var rootCmd = &cobra.Command{
-	Use:              command,
-	Short:            "Collection of extra functions for AWS ECS",
-	PersistentPreRun: persistentPreRun,
+	Use:   command,
+	Short: "Collection of extra functions for AWS ECS",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

@@ -79,10 +79,11 @@ func taskDefinitionsEditRun(cmd *cobra.Command, args []string) {
 }
 
 var taskDefinitionsEditCmd = &cobra.Command{
-	Use:   "edit [task-definition]",
-	Short: "Edit a Task Definition",
-	Args:  cobra.ExactArgs(1),
-	Run:   taskDefinitionsEditRun,
+	Use:              "edit [task-definition]",
+	Short:            "Edit a Task Definition",
+	Args:             cobra.ExactArgs(1),
+	Run:              taskDefinitionsEditRun,
+	PersistentPreRun: persistentPreRun,
 }
 
 func init() {
