@@ -8,8 +8,6 @@ import (
 )
 
 func servicesCopyRun(cmd *cobra.Command, services []string) {
-	cluster := viper.GetString("cluster")
-
 	targetClustersDescription, err := ecsI.DescribeClusters(&ecs.DescribeClustersInput{
 		Clusters: []*string{
 			aws.String(toCluster),
@@ -46,8 +44,9 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 	}
 
 	for _, s := range servicesDescription.Services {
-		ecsI.CreateService(&ecs.CreateServiceInput{
+		input := &ecs.CreateServiceInput{
 			Cluster:                       targetC.ClusterName,
+			CapacityProviderStrategy:      s.CapacityProviderStrategy,
 			DeploymentConfiguration:       s.DeploymentConfiguration,
 			DeploymentController:          s.DeploymentController,
 			DesiredCount:                  s.DesiredCount,
@@ -59,14 +58,21 @@ func servicesCopyRun(cmd *cobra.Command, services []string) {
 			PlacementConstraints:          s.PlacementConstraints,
 			PlacementStrategy:             s.PlacementStrategy,
 			PlatformVersion:               s.PlatformVersion,
-			PropagateTags:                 s.PropagateTags,
 			Role:                          s.RoleArn,
 			SchedulingStrategy:            s.SchedulingStrategy,
 			ServiceName:                   s.ServiceName,
 			ServiceRegistries:             s.ServiceRegistries,
 			Tags:                          s.Tags,
 			TaskDefinition:                s.TaskDefinition,
-		})
+		}
+
+		if aws.StringValue(s.PropagateTags) != "NONE" {
+			input.PropagateTags = s.PropagateTags
+		}
+
+		if _, err := ecsI.CreateService(input); err != nil {
+			t.Errorln(err)
+		}
 	}
 }
 
@@ -84,10 +90,9 @@ func init() {
 	flags := servicesCopyCmd.Flags()
 
 	flags.StringVarP(&toCluster, "to-cluster", "t", "", requiredSpec+toClusterSpec)
-	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
+	flags.StringVarP(&cluster, "cluster", "c", "", requiredSpec+clusterSpec)
 	viper.BindPFlag("cluster", servicesCopyCmd.Flags().Lookup("cluster"))
 
 	servicesCopyCmd.MarkFlagRequired("cluster")
 	servicesCopyCmd.MarkFlagRequired("to-cluster")
-
 }
