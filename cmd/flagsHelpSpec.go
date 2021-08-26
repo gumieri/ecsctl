@@ -98,9 +98,19 @@ var instanceTypesSpec = `Type of instance to be used by the Spot Fleet. Can be p
 It's possible to change the units provided (target capacity) by a specific instance type adding a number after a colon (:) (default 1)
 E.g. --instance-type m4.large:2 -i c4.large:2 -i t3.medium`
 
+var environmentVariables []string
+var environmentVariablesSpec = `Overwrite or add Environment Variables of the Task. Inform as "key=value" format.
+Can be informed multiple times.`
+
 var credit string
 var creditSpec = `The credit option for CPU usage of a T2 (default 'standard') or T3 (default 'unlimited') instance
 Valid values: 'standard', 'unlimited'`
+
+var groupTasks string
+var groupTasksSpec = `Group the Tasks in the specified name.`
+
+var numberTasks int64
+var numberTasksSpec = `The number of tasks to launch`
 
 var minimum int64
 var minimumSpec = `The minimum number of instances to launch

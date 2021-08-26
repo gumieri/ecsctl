@@ -88,11 +88,36 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		revision = strconv.FormatInt(aws.Int64Value(td.Revision), 10)
 	}
 
-	taskResult, err := ecsI.RunTask(&ecs.RunTaskInput{
+	runTaskInput := &ecs.RunTaskInput{
 		Cluster:        aws.String(cluster),
 		TaskDefinition: aws.String(taskDefinitionFamily + ":" + revision),
 		StartedBy:      aws.String("ecsctl"),
-	})
+		Count:          aws.Int64(numberTasks),
+	}
+
+	if groupTasks != "" {
+		runTaskInput.Group = aws.String(groupTasks)
+	}
+
+	envOverride := make([]*ecs.KeyValuePair, 0)
+	for _, envPair := range environmentVariables {
+		envSlice := strings.Split(envPair, "=")
+		if len(envSlice) != 2 {
+			continue
+		}
+
+		envOverride = append(envOverride, &ecs.KeyValuePair{Name: aws.String(envSlice[0]), Value: aws.String(envSlice[1])})
+	}
+
+	if len(envOverride) > 0 {
+		runTaskInput.Overrides = &ecs.TaskOverride{
+			ContainerOverrides: []*ecs.ContainerOverride{
+				&ecs.ContainerOverride{Environment: envOverride},
+			},
+		}
+	}
+
+	taskResult, err := ecsI.RunTask(runTaskInput)
 
 	t.Must(err)
 
@@ -222,6 +247,12 @@ func init() {
 	flags.BoolVarP(&follow, "follow", "f", false, followSpec)
 
 	flags.StringVar(&revision, "revision", "", revisionSpec)
+
+	flags.Int64VarP(&numberTasks, "number", "n", 1, numberTasksSpec)
+
+	flags.StringSliceVarP(&environmentVariables, "env", "e", []string{}, environmentVariablesSpec)
+
+	flags.StringVar(&groupTasks, "group", "", groupTasksSpec)
 
 	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
 	viper.BindPFlag("cluster", taskDefinitionsRunCmd.Flags().Lookup("cluster"))
