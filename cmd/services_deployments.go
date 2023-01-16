@@ -65,7 +65,4 @@ func init() {
 
 	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
 	viper.BindPFlag("cluster", servicesDeploymentsCmd.Flags().Lookup("cluster"))
-
-	servicesDeploymentsCmd.MarkFlagRequired("cluster")
-
 }
