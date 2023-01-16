@@ -6,9 +6,10 @@ require (
 	github.com/TylerBrock/colorjson v0.0.0-20200706003622-8a50f05110d2
 	github.com/adrg/xdg v0.2.1
 	github.com/ahmetb/go-cursor v0.0.0-20131010032410-8136607ea412
-	github.com/aws/aws-sdk-go v1.34.9
+	github.com/aws/aws-sdk-go v1.44.180
 	github.com/fatih/color v1.9.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gumieri/open-in-editor v0.0.0-20180920123653-4f3f3f35875d
@@ -26,7 +27,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1
-	golang.org/x/sys v0.0.0-20200820212457-1fb795427249 // indirect
+	github.com/stretchr/testify v1.5.1 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/ini.v1 v1.60.0 // indirect
 )
