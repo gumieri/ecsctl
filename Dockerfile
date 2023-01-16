@@ -12,7 +12,7 @@ ARG VERSION
 
 ENV CGO_ENABLED=0
 
-RUN go build -ldflags "-X github.com/gumieri/ecsctl/cmd.VERSION=${VERSION}"
+RUN go build -ldflags "-X github.com/gumieri/ecsctl/cmd.Version=${VERSION}"
 
 FROM scratch
 

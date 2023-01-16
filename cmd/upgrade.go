@@ -71,7 +71,7 @@ func upgradeRun(cmd *cobra.Command, args []string) {
 	t.Must(err)
 	latest := available[len(available)-1]
 
-	current, err := version.NewVersion(VERSION)
+	current, err := version.NewVersion(Version)
 	t.Must(err)
 
 	if !current.LessThan(latest) {
