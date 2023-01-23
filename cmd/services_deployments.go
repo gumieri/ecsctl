@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/spf13/cobra"
@@ -47,6 +49,7 @@ func servicesDeploymentsRun(cmd *cobra.Command, args []string) {
 			}
 		}
 
+		time.Sleep(10 * time.Second)
 	}
 }
 

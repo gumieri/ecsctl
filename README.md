@@ -100,10 +100,10 @@ task-definitions
     - [ ] delete
 
 scheduled-tasks
-  - [ ] create
-  - [ ] edit
+  - [x] create
+  - [x] edit
   - [ ] delete
-  - [ ] update
+  - [x] update
 
 repositories
   - [x] create

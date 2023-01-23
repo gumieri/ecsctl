@@ -132,9 +132,16 @@ var status string
 var statusSpec = `Task definition Status
 Valid values: 'all', 'active', 'inactive'`
 
+var state string
+var stateSpec = `Scheduled task Status
+Valid values: 'all', 'enabled', 'disabled'`
+
 var listARN bool
 var listARNSpec = `List resources ARNs`
 
 var noHeaderSpec = "Hide the header information of the listed table"
 
 var watchSpec = "Stay watching for changes"
+
+var taskDefinition string
+var taskDefinitionSpec = "The Task Definition name (without the revision number)"

@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/eventbridge"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/gumieri/typist"
 	homedir "github.com/mitchellh/go-homedir"
@@ -24,6 +25,7 @@ var ecsI *ecs.ECS
 var ecrI *ecr.ECR
 var ec2I *ec2.EC2
 var iamI *iam.IAM
+var evbI *eventbridge.EventBridge
 var cwlI *cloudwatchlogs.CloudWatchLogs
 
 var t = typist.New(&typist.Config{Quiet: quiet, Header: true})
@@ -48,6 +50,7 @@ func persistentPreRun(cmd *cobra.Command, args []string) {
 	ecrI = ecr.New(awsSession)
 	ec2I = ec2.New(awsSession)
 	iamI = iam.New(awsSession)
+	evbI = eventbridge.New(awsSession)
 	cwlI = cloudwatchlogs.New(awsSession)
 }
 
