@@ -18,6 +18,9 @@ export RELEASE_BODY
 all: deps build
 deps:
 	go get ./...
+upgrade:
+	go get -u ./...
+	go mod tidy
 build:
 	$(GOBUILD)
 install:
