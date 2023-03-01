@@ -96,7 +96,7 @@ func scheduledTasksConfigureRun(cmd *cobra.Command, scheduledTasks []string) {
 		if len(override.ContainerOverrides) == 0 {
 			override.ContainerOverrides = append(override.ContainerOverrides, &ecs.ContainerOverride{})
 		}
-		override.ContainerOverrides[0].Command = []*string{aws.String(c)}
+		override.ContainerOverrides[0].Command = aws.StringSlice(strings.Split(c, " "))
 		bytes, err := jsonutil.BuildJSON(override)
 		t.Must(err)
 		target.Input = aws.String(string(bytes))
