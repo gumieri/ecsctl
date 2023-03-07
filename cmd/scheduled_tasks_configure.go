@@ -92,21 +92,23 @@ func scheduledTasksConfigureRun(cmd *cobra.Command, scheduledTasks []string) {
 		jsonutil.UnmarshalJSON(&override, strings.NewReader(aws.StringValue(target.Input)))
 	}
 
+	family := viper.GetString("task-definition")
+	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: aws.String(family),
+	})
+	t.Must(err)
+
 	if c := viper.GetString("command"); c != "" {
 		if len(override.ContainerOverrides) == 0 {
-			override.ContainerOverrides = append(override.ContainerOverrides, &ecs.ContainerOverride{})
+			override.ContainerOverrides = append(override.ContainerOverrides, &ecs.ContainerOverride{
+				Name: tdDescription.TaskDefinition.ContainerDefinitions[0].Name,
+			})
 		}
 		override.ContainerOverrides[0].Command = aws.StringSlice(strings.Split(c, " "))
 		bytes, err := jsonutil.BuildJSON(override)
 		t.Must(err)
 		target.Input = aws.String(string(bytes))
 	}
-
-	family := viper.GetString("task-definition")
-	tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
-		TaskDefinition: aws.String(family),
-	})
-	t.Must(err)
 
 	target.EcsParameters.TaskDefinitionArn = tdDescription.TaskDefinition.TaskDefinitionArn
 
