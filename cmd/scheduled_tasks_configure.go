@@ -51,7 +51,7 @@ func scheduledTasksConfigureRun(cmd *cobra.Command, scheduledTasks []string) {
 		rule.State = aws.String(eventbridge.RuleStateEnabled)
 	}
 
-	evbI.PutRule(&eventbridge.PutRuleInput{
+	_, err = evbI.PutRule(&eventbridge.PutRuleInput{
 		Description:        rule.Description,
 		EventBusName:       rule.EventBusName,
 		EventPattern:       rule.EventPattern,
@@ -60,6 +60,7 @@ func scheduledTasksConfigureRun(cmd *cobra.Command, scheduledTasks []string) {
 		ScheduleExpression: rule.ScheduleExpression,
 		State:              rule.State,
 	})
+	t.Must(err)
 
 	targetsList, err := evbI.ListTargetsByRule(&eventbridge.ListTargetsByRuleInput{Rule: rule.Name})
 	t.Must(err)
