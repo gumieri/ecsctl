@@ -25,11 +25,14 @@ func scheduledTasksConfigureRun(cmd *cobra.Command, scheduledTasks []string) {
 		Clusters: []*string{aws.String(viper.GetString("cluster"))},
 	})
 	t.Must(err)
-	clusterArn := clustersDescription.Clusters[0].ClusterArn
 
 	if len(clustersDescription.Clusters) == 0 {
 		t.Exitln("Source Cluster informed not found")
 	}
+
+	clusterArn := clustersDescription.Clusters[0].ClusterArn
+
+	capacityProviderStrategy := clustersDescription.Clusters[0].DefaultCapacityProviderStrategy
 
 	ruleName := aws.String(scheduledTasks[0])
 	rule, err := evbI.DescribeRule(&eventbridge.DescribeRuleInput{Name: ruleName})
@@ -80,8 +83,17 @@ func scheduledTasksConfigureRun(cmd *cobra.Command, scheduledTasks []string) {
 		target.Id = rule.Name
 
 		target.EcsParameters = &eventbridge.EcsParameters{}
-		target.EcsParameters.LaunchType = aws.String("EC2")
 		target.EcsParameters.TaskCount = aws.Int64(1)
+
+		if len(capacityProviderStrategy) == 0 {
+			target.EcsParameters.LaunchType = aws.String("EC2")
+		} else {
+			target.EcsParameters.SetCapacityProviderStrategy([]*eventbridge.CapacityProviderStrategyItem{{
+				Base:             capacityProviderStrategy[0].Base,
+				CapacityProvider: capacityProviderStrategy[0].CapacityProvider,
+				Weight:           capacityProviderStrategy[0].Weight,
+			}})
+		}
 
 		ecsEventsRole, err := iamI.GetRole(&iam.GetRoleInput{
 			RoleName: aws.String(viper.GetString("events-role")),
