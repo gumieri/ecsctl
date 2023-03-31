@@ -111,9 +111,25 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 
 	if len(envOverride) > 0 {
 		runTaskInput.Overrides = &ecs.TaskOverride{
-			ContainerOverrides: []*ecs.ContainerOverride{
-				&ecs.ContainerOverride{Environment: envOverride},
-			},
+			ContainerOverrides: []*ecs.ContainerOverride{{
+				Name:        td.ContainerDefinitions[0].Name,
+				Environment: envOverride,
+			}},
+		}
+	}
+
+	if commandOverride != "" {
+		commandSlice := aws.StringSlice(strings.Split(commandOverride, " "))
+
+		if runTaskInput.Overrides == nil {
+			runTaskInput.Overrides = &ecs.TaskOverride{
+				ContainerOverrides: []*ecs.ContainerOverride{{
+					Name:    td.ContainerDefinitions[0].Name,
+					Command: commandSlice,
+				}},
+			}
+		} else {
+			runTaskInput.Overrides.ContainerOverrides[0].Command = commandSlice
 		}
 	}
 
@@ -146,7 +162,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 	}
 
 	tSplited := strings.Split(aws.StringValue(taskResult.Tasks[0].TaskArn), "/")
-	taskID := tSplited[1]
+	taskID := tSplited[2]
 
 	logDriver := td.ContainerDefinitions[0].LogConfiguration.LogDriver
 	if aws.StringValue(logDriver) != "awslogs" {
@@ -222,7 +238,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 
 		status := aws.StringValue(tasksStatus.Tasks[0].LastStatus)
 		if status == "STOPPED" {
-			os.Exit(0)
+			os.Exit(int(aws.Int64Value(tasksStatus.Tasks[0].Containers[0].ExitCode)))
 		}
 
 		time.Sleep(1 * time.Second)
@@ -252,11 +268,10 @@ func init() {
 
 	flags.StringSliceVarP(&environmentVariables, "env", "e", []string{}, environmentVariablesSpec)
 
+	flags.StringVar(&commandOverride, "command", "", "Command to override in the task execution")
+
 	flags.StringVar(&groupTasks, "group", "", groupTasksSpec)
 
-	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
+	flags.StringP("cluster", "c", "default", clusterSpec)
 	viper.BindPFlag("cluster", taskDefinitionsRunCmd.Flags().Lookup("cluster"))
-
-	taskDefinitionsRunCmd.MarkFlagRequired("cluster")
-
 }

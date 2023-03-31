@@ -145,3 +145,5 @@ var watchSpec = "Stay watching for changes"
 
 var taskDefinition string
 var taskDefinitionSpec = "The Task Definition name (without the revision number)"
+
+var commandOverride string
