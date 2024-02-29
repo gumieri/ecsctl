@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -54,8 +55,17 @@ func servicesDeployRun(cmd *cobra.Command, args []string) {
 	}
 
 	for _, s := range servicesDescription.Services {
+		taskDefitionString := s.TaskDefinition
+		if viper.GetBool("latest") {
+			tdArn, err := arn.Parse(aws.StringValue(taskDefitionString))
+			t.Must(err)
+
+			tdArn.Resource = strings.Split(tdArn.Resource, ":")[0]
+			taskDefitionString = aws.String(tdArn.String())
+		}
+
 		tdDescription, err := ecsI.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
-			TaskDefinition: s.TaskDefinition,
+			TaskDefinition: taskDefitionString,
 		})
 
 		t.Must(err)
@@ -145,4 +155,7 @@ func init() {
 
 	flags.StringP("cluster", "c", "", requiredSpec+clusterSpec)
 	viper.BindPFlag("cluster", servicesDeployCmd.Flags().Lookup("cluster"))
+
+	flags.Bool("latest", false, latestTaskDefinitionSpec)
+	viper.BindPFlag("latest", servicesDeployCmd.Flags().Lookup("latest"))
 }
