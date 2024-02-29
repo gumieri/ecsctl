@@ -10,7 +10,7 @@ chmod +x /usr/local/bin/ecsctl
 ```
 If you already have an older version installed, just run:
 ```bash
-p upgrade
+ecsctl upgrade
 ```
 endef
 export RELEASE_BODY
