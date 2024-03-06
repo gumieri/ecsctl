@@ -150,3 +150,6 @@ var commandOverride string
 
 var latestTaskDefinition bool
 var latestTaskDefinitionSpec = "Get the latest Task Definition revision (not deprecated) to use as source"
+
+var taskDefinitionsEnvOverride bool
+var taskDefinitionsEnvOverrideSpec = "Override container's environment variables"
