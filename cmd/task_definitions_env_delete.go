@@ -34,9 +34,7 @@ func taskDefinitionsEnvDeleteRun(cmd *cobra.Command, args []string) {
 
 	env := cdToUpdate.Environment
 
-	envKeys := viper.GetStringSlice("keys")
-
-	for _, key := range envKeys {
+	for _, key := range environmentVariableKeys {
 		for i, envKeyValuePair := range env {
 			if aws.StringValue(envKeyValuePair.Name) == key {
 				env = append(env[:i], env[i+1:]...)
@@ -80,8 +78,8 @@ func init() {
 	flags.StringVar(&containerName, "container", "", containerNameSpec)
 	viper.BindPFlag("container", taskDefinitionsEnvDeleteCmd.Flags().Lookup("container"))
 
-	flags.StringSliceP("keys", "k", []string{}, "Delete Environment Variables of the Task. Inform the variable names. Can be informed multiple times.")
-	viper.BindPFlag("keys", taskDefinitionsEnvDeleteCmd.Flags().Lookup("keys"))
+	flags.StringSliceVarP(&environmentVariableKeys, "keys", "k", []string{}, environmentVariableKeysSpec)
+	taskDefinitionsEnvDeleteCmd.MarkFlagRequired("keys")
 
 	flags.BoolVar(&taskDefinitionsEnvOverride, "override", false, taskDefinitionsEnvOverrideSpec)
 }

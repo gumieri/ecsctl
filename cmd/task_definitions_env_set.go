@@ -85,6 +85,7 @@ func init() {
 	viper.BindPFlag("container", taskDefinitionsEnvSetCmd.Flags().Lookup("container"))
 
 	flags.StringSliceVarP(&environmentVariables, "env", "e", []string{}, environmentVariablesSpec)
+	taskDefinitionsEnvSetCmd.MarkFlagRequired("env")
 
 	flags.BoolVar(&taskDefinitionsEnvOverride, "override", false, taskDefinitionsEnvOverrideSpec)
 }
