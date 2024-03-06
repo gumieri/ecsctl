@@ -102,6 +102,9 @@ var environmentVariables []string
 var environmentVariablesSpec = `Overwrite or add Environment Variables of the Task. Inform as "key=value" format.
 Can be informed multiple times.`
 
+var environmentVariableKeys []string
+var environmentVariableKeysSpec = `Key of the Environment Variables to delete from Task. Can be informed multiple times. E.g. --key [ENV_KEY1] -k [ENV_KEY2]`
+
 var credit string
 var creditSpec = `The credit option for CPU usage of a T2 (default 'standard') or T3 (default 'unlimited') instance
 Valid values: 'standard', 'unlimited'`
