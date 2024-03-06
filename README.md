@@ -94,10 +94,10 @@ task-definitions
   - [x] edit
   - [ ] delete
   - [ ] deregister
-  - [ ] env
-    - [ ] list
-    - [ ] set
-    - [ ] delete
+  - [x] env
+    - [x] list
+    - [x] set
+    - [x] delete
 
 scheduled-tasks
   - [x] create
