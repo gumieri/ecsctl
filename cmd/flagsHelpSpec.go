@@ -156,3 +156,6 @@ var latestTaskDefinitionSpec = "Get the latest Task Definition revision (not dep
 
 var taskDefinitionsEnvOverride bool
 var taskDefinitionsEnvOverrideSpec = "Override container's environment variables"
+
+var memory int64
+var memoryReservation int64

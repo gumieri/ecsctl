@@ -118,6 +118,32 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	if memory > 0 {
+		if runTaskInput.Overrides == nil {
+			runTaskInput.Overrides = &ecs.TaskOverride{
+				ContainerOverrides: []*ecs.ContainerOverride{{
+					Name:   td.ContainerDefinitions[0].Name,
+					Memory: aws.Int64(memory),
+				}},
+			}
+		} else {
+			runTaskInput.Overrides.ContainerOverrides[0].Memory = aws.Int64(memory)
+		}
+	}
+
+	if memoryReservation > 0 {
+		if runTaskInput.Overrides == nil {
+			runTaskInput.Overrides = &ecs.TaskOverride{
+				ContainerOverrides: []*ecs.ContainerOverride{{
+					Name:              td.ContainerDefinitions[0].Name,
+					MemoryReservation: aws.Int64(memoryReservation),
+				}},
+			}
+		} else {
+			runTaskInput.Overrides.ContainerOverrides[0].MemoryReservation = aws.Int64(memoryReservation)
+		}
+	}
+
 	if commandOverride != "" {
 		commandSlice := aws.StringSlice(strings.Split(commandOverride, " "))
 
@@ -268,7 +294,11 @@ func init() {
 
 	flags.StringSliceVarP(&environmentVariables, "env", "e", []string{}, environmentVariablesSpec)
 
-	flags.StringVar(&commandOverride, "command", "", "Command to override in the task execution")
+	flags.StringVar(&commandOverride, "command", "", "Command to override in the (container definition) task execution")
+
+	flags.Int64Var(&memory, "memory", 0, "Memory in MiB (Hard limit) to override in (container definition) task execution")
+
+	flags.Int64Var(&memoryReservation, "memory-reservation", 0, "Memory reservation in MiB (soft limit) to override in (container definition) task execution")
 
 	flags.StringVar(&groupTasks, "group", "", groupTasksSpec)
 
