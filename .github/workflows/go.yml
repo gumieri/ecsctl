@@ -10,29 +10,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.19
+      - name: Build
+        run: env VERSION=${GITHUB_REF/refs\/tags\//} make build-all release-body
 
-    - name: Build
-      run: env VERSION=${GITHUB_REF/refs\/tags\//} make build-all release-body
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        files: |
-          release/ecsctl-Linux-x86_64
-          release/ecsctl-Linux-i386
-          release/ecsctl-Linux-armv5l
-          release/ecsctl-Linux-armv6l
-          release/ecsctl-Linux-armv7l
-          release/ecsctl-Linux-armv8l
-          release/ecsctl-Darwin-x86_64
-          release/ecsctl-Darwin-i386
-          release/ecsctl-Darwin-arm64
-        body_path: RELEASE.md
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            release/ecsctl-Linux-x86_64
+            release/ecsctl-Linux-i386
+            release/ecsctl-Linux-armv5l
+            release/ecsctl-Linux-armv6l
+            release/ecsctl-Linux-armv7l
+            release/ecsctl-Linux-armv8l
+            release/ecsctl-Darwin-x86_64
+            release/ecsctl-Darwin-i386
+            release/ecsctl-Darwin-arm64
+          body_path: RELEASE.md
