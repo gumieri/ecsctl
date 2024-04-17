@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -53,6 +54,12 @@ func taskDefinitionsUpdateRun(cmd *cobra.Command, args []string) {
 		RequiresCompatibilities: td.RequiresCompatibilities,
 		TaskRoleArn:             td.TaskRoleArn,
 		Volumes:                 td.Volumes,
+	}))
+
+	oldFamilyRevision := aws.StringValue(td.Family) + ":" + strconv.FormatInt(aws.Int64Value(td.Revision), 10)
+
+	t.Must(ecsI.DeregisterTaskDefinition(&ecs.DeregisterTaskDefinitionInput{
+		TaskDefinition: aws.String(oldFamilyRevision),
 	}))
 }
 
