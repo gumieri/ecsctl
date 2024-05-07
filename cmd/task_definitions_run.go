@@ -159,7 +159,20 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	taskResult, err := ecsI.RunTask(runTaskInput)
+	retryCount := 0
+	retryLimit := 5
+	var taskResult *ecs.RunTaskOutput
+	for {
+		taskResult, err = ecsI.RunTask(runTaskInput)
+		if err == nil || retryCount >= retryLimit {
+			break
+		}
+
+		retryCount = retryCount + 1
+		err = nil
+
+		time.Sleep(1 * time.Second)
+	}
 
 	t.Must(err)
 
@@ -237,8 +250,8 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		return !lastPage
 	}
 
-	retryCount := 0
-	retryLimit := 50
+	retryCount = 0
+	retryLimit = 50
 	for {
 		err := cwlI.FilterLogEventsPages(&cwInput, handlePage)
 		if err != nil {
