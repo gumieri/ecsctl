@@ -164,12 +164,12 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 	var taskResult *ecs.RunTaskOutput
 	for {
 		taskResult, err = ecsI.RunTask(runTaskInput)
-		if err == nil || retryCount >= retryLimit {
+
+		if err != nil || retryCount >= retryLimit || len(taskResult.Tasks) > 0 {
 			break
 		}
 
 		retryCount = retryCount + 1
-		err = nil
 
 		time.Sleep(1 * time.Second)
 	}
