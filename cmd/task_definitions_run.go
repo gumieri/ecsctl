@@ -12,6 +12,7 @@ import (
 	"github.com/TylerBrock/colorjson"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -180,6 +181,53 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		t.Exitln("task failed to run")
 	}
 
+	tSplited := strings.Split(aws.StringValue(taskResult.Tasks[0].TaskArn), "/")
+	taskID := tSplited[2]
+
+	if viper.GetBool("output-ip") {
+		var tasksStatus *ecs.DescribeTasksOutput
+		var err error
+
+		for {
+			tasksStatus, err = ecsI.DescribeTasks(&ecs.DescribeTasksInput{
+				Cluster: aws.String(cluster),
+				Tasks:   []*string{aws.String(taskID)},
+			})
+			t.Must(err)
+
+			status := aws.StringValue(tasksStatus.Tasks[0].LastStatus)
+			if status != "PENDING" {
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+
+		ec2ECSInstance, err := ecsI.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
+			Cluster:            aws.String(cluster),
+			ContainerInstances: []*string{tasksStatus.Tasks[0].ContainerInstanceArn},
+		})
+		t.Must(err)
+
+		if len(ec2ECSInstance.ContainerInstances) == 0 {
+			t.Exitln("failed to find the EC2 Instance running this task")
+		}
+
+		ec2Info, err := ec2I.DescribeInstances(&ec2.DescribeInstancesInput{
+			InstanceIds: []*string{ec2ECSInstance.ContainerInstances[0].Ec2InstanceId},
+		})
+
+		if len(ec2Info.Reservations) == 0 || len(ec2Info.Reservations[0].Instances) == 0 {
+			t.Exitln("failed to describe the EC2 Instance running this task")
+		}
+
+		hostIp := ec2Info.Reservations[0].Instances[0].PrivateIpAddress
+
+		hostPort := tasksStatus.Tasks[0].Containers[0].NetworkBindings[0].HostPort
+
+		t.Outf("%s:%d\n", aws.StringValue(hostIp), aws.Int64Value(hostPort))
+	}
+
 	if !follow {
 		t.Exit(nil)
 	}
@@ -199,9 +247,6 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 			t.Exit(nil)
 		}()
 	}
-
-	tSplited := strings.Split(aws.StringValue(taskResult.Tasks[0].TaskArn), "/")
-	taskID := tSplited[2]
 
 	logDriver := td.ContainerDefinitions[0].LogConfiguration.LogDriver
 	if aws.StringValue(logDriver) != "awslogs" {
@@ -314,6 +359,9 @@ func init() {
 	flags.Int64Var(&memoryReservation, "memory-reservation", 0, "Memory reservation in MiB (soft limit) to override in (container definition) task execution")
 
 	flags.StringVar(&groupTasks, "group", "", groupTasksSpec)
+
+	flags.Bool("output-ip", false, "Return the Private IP and Port of the Container on running Task for EC2 Instances")
+	viper.BindPFlag("output-ip", taskDefinitionsRunCmd.Flags().Lookup("output-ip"))
 
 	flags.StringP("cluster", "c", "default", clusterSpec)
 	viper.BindPFlag("cluster", taskDefinitionsRunCmd.Flags().Lookup("cluster"))
