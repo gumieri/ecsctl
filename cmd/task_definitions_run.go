@@ -221,7 +221,10 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 			t.Exitln("failed to describe the EC2 Instance running this task")
 		}
 
-		hostIp := ec2Info.Reservations[0].Instances[0].PrivateIpAddress
+		hostIp := ec2Info.Reservations[0].Instances[0].PublicIpAddress
+		if hostIp == nil {
+			hostIp = ec2Info.Reservations[0].Instances[0].PrivateIpAddress
+		}
 
 		hostPort := tasksStatus.Tasks[0].Containers[0].NetworkBindings[0].HostPort
 
