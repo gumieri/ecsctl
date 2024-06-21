@@ -1,7 +1,5 @@
 FROM golang:1 AS build
 
-RUN apk update && apk add --no-cache ca-certificates
-
 WORKDIR $GOPATH/src/gumieri/ecsctl
 
 COPY go.mod go.sum ./
