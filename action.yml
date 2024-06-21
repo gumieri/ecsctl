@@ -1,13 +1,13 @@
 name: 'ecsctl'
 description: 'Manage AWS Elastic Container Service (ECS)'
 inputs:
-  command:  # id of input
+  command: 
     description: 'inform the command and args as in cli. Check for the documentation to know all commands.'
     required: true
 
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'action.Dockerfile'
   args:
     - ${{ inputs.command }}
 
