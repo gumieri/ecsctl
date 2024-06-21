@@ -1,21 +1,27 @@
-FROM golang:1 AS build
+FROM golang:alpine AS build
 
-WORKDIR /
+RUN apk update && apk add --no-cache ca-certificates
+
+WORKDIR $GOPATH/src/gumieri/ecsctl
 
 COPY go.mod go.sum ./
 
 RUN go mod download
 
-COPY ./ ./
+COPY ./*.go ./
+COPY ./cmd/*.go ./cmd/
 
 ARG VERSION
 
-ENV CGO_ENABLED=0
-
-RUN go build -ldflags "-X github.com/gumieri/ecsctl/cmd.Version=${VERSION}"
+RUN CGO_ENABLED=0 go build -ldflags "-w -s -X github.com/gumieri/ecsctl/cmd.Version=${VERSION}" -o /go/bin/ecsctl
 
 FROM scratch
 
-COPY --from=build ["/ecsctl", "./"]
+COPY --from=build /etc/passwd /etc/passwd
+USER nobody
 
-ENTRYPOINT ["/ecsctl"]
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+COPY --from=build ["/go/bin/ecsctl", "/usr/local/bin/"]
+
+ENTRYPOINT ["/usr/local/bin/ecsctl"]
