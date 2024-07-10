@@ -236,9 +236,8 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 	}
 
 	if exit {
-		var gracefulStop = make(chan os.Signal)
-		signal.Notify(gracefulStop, syscall.SIGTERM)
-		signal.Notify(gracefulStop, syscall.SIGINT)
+		var gracefulStop = make(chan os.Signal, 1)
+		signal.Notify(gracefulStop, syscall.SIGTERM, syscall.SIGINT)
 		go func() {
 			<-gracefulStop
 
@@ -328,7 +327,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 			os.Exit(int(aws.Int64Value(tasksStatus.Tasks[0].Containers[0].ExitCode)))
 		}
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 
