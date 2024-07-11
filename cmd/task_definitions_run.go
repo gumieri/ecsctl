@@ -297,6 +297,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 		return !lastPage
 	}
 
+	lastRun := false
 	retryCount = 0
 	retryLimit = 50
 	for {
@@ -324,7 +325,10 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 
 		status := aws.StringValue(tasksStatus.Tasks[0].LastStatus)
 		if status == "STOPPED" {
-			os.Exit(int(aws.Int64Value(tasksStatus.Tasks[0].Containers[0].ExitCode)))
+			if lastRun {
+				os.Exit(int(aws.Int64Value(tasksStatus.Tasks[0].Containers[0].ExitCode)))
+			}
+			lastRun = true
 		}
 
 		time.Sleep(5 * time.Second)
