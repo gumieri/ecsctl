@@ -13,4 +13,6 @@ ARG VERSION
 
 RUN CGO_ENABLED=0 go build -ldflags "-w -s -X github.com/gumieri/ecsctl/cmd.Version=${VERSION}" -o /usr/local/bin/ecsctl
 
-ENTRYPOINT ["/usr/local/bin/ecsctl"]
+COPY ./action-entrypoint.sh /usr/local/bin/action-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/action-entrypoint.sh"]
