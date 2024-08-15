@@ -196,7 +196,7 @@ func taskDefinitionsRunRun(cmd *cobra.Command, args []string) {
 			t.Must(err)
 
 			status := aws.StringValue(tasksStatus.Tasks[0].LastStatus)
-			if status != "PENDING" {
+			if status != "PENDING" && status != "PROVISIONING" {
 				break
 			}
 
