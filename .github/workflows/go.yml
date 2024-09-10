@@ -25,10 +25,7 @@ jobs:
           files: |
             release/ecsctl-Linux-x86_64
             release/ecsctl-Linux-i386
-            release/ecsctl-Linux-armv5l
-            release/ecsctl-Linux-armv6l
-            release/ecsctl-Linux-armv7l
-            release/ecsctl-Linux-armv8l
+            release/ecsctl-Linux-aarch64
             release/ecsctl-Darwin-x86_64
             release/ecsctl-Darwin-i386
             release/ecsctl-Darwin-arm64

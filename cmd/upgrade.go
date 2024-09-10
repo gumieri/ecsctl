@@ -53,7 +53,7 @@ func uname() (uname string, err error) {
 	case "amd64":
 		m = "x86_64"
 	case "arm64":
-		m = "armv8l"
+		m = "aarch64"
 	case "arm":
 		err = errors.New("Unable to identify the ARM architecture")
 		return

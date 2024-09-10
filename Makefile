@@ -35,25 +35,10 @@ build-linux-86:
 	GOOS=linux \
 	GOARCH=386 \
 	$(GOBUILD) -o release/ecsctl-Linux-i386
-build-linux-arm5:
-	GOOS=linux \
-	GOARCH=arm \
-	GOARM=5 \
-	$(GOBUILD) -o release/ecsctl-Linux-armv5l
-build-linux-arm6:
-	GOOS=linux \
-	GOARCH=arm \
-	GOARM=6 \
-	$(GOBUILD) -o release/ecsctl-Linux-armv6l
-build-linux-arm7:
-	GOOS=linux \
-	GOARCH=arm \
-	GOARM=7 \
-	$(GOBUILD) -o release/ecsctl-Linux-armv7l
-build-linux-arm8:
+build-linux-aarch64:
 	GOOS=linux \
 	GOARCH=arm64 \
-	$(GOBUILD) -o release/ecsctl-Linux-armv8l
+	$(GOBUILD) -o release/ecsctl-Linux-aarch64
 build-macos-64:
 	GOOS=darwin \
 	GOARCH=amd64 \
